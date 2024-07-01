@@ -1,62 +1,142 @@
 exports.input = function(options) {
   options = options||{};
+  var colours = ['#ff0', '#0f0', '#f00', '#00f'];
   var text = options.text;
+  var punctuationMode = false;
+  var extendedMode = false;
+  var overlay = Graphics.createArrayBuffer(g.getWidth(), g.getHeight(), 8, {msb:true});
+  overlay.transparent = 0;
+  overlay.setFont("6x8:3");
+  
+  Bangle.setLCDOverlay(overlay,0,0, {id: "cornerOverlay"});
+
   if ("string"!=typeof text) text="";
 
-  var path = {};
+  const cornerSize = g.getWidth() / 3;
 
-  var characterset = Object.assign({}, require('Storage').readJSON("characterset.json", true) || {});
+  var path = "";
+  var flashToggle = false;
+  var corner = 0;
 
-  function findMarker(strArr) {
-    if (strArr.length == 0) {
-      Rx1 = 4;
-      Rx2 = 6*4;
-      Ry1 = 8*4 + R.y;
-      Ry2 = 8*4 + 3 + R.y;
-    } else if (strArr.length <= 4) {
-      Rx1 = (strArr[strArr.length-1].length)%7*6*4 + 4 ;
-      Rx2 = (strArr[strArr.length-1].length)%7*6*4 + 6*4;
-      Ry1 = (strArr.length)*(8*4) + Math.floor((strArr[strArr.length-1].length)/7)*(8*4) + R.y;
-      Ry2 = (strArr.length)*(8*4) + Math.floor((strArr[strArr.length-1].length)/7)*(8*4) + 3 + R.y;
-    } else {
-      Rx1 = (strArr[strArr.length-1].length)%7*6*4 + 4 ;
-      Rx2 = (strArr[strArr.length-1].length)%7*6*4 + 6*4;
-      Ry1 = (4)*(8*4) + Math.floor((strArr[strArr.length-1].length)/7)*(8*4) + R.y;
-      Ry2 = (4)*(8*4) + Math.floor((strArr[strArr.length-1].length)/7)*(8*4) + 3 + R.y;
+  var characterSet = Object.assign({}, require('Storage').readJSON("characterset.json", true) || {});
+
+  function resetOverlay() {
+    let modeChar = "";
+    overlay.clear();
+    if (punctuationMode) {
+      modeChar = "P";
     }
-    return {x:Rx1,y:Ry1,x2:Rx2,y2:Ry2};
+    if (extendedMode) {
+      modeChar = "E";
+    }
+    if (modeChar.length > 0) {
+      let x = (g.getWidth() / 2) - 12;
+      let y = g.getHeight() - 32;
+      overlay.setColor("#F00");
+      overlay.fillRect(x,y,x+24,y+32);
+      overlay.setColor("#FFF");
+      overlay.drawString(modeChar, x+4, y+4, false);
+    }
+    Bangle.setLCDOverlay(overlay,0,0, {id: "cornerOverlay"});
   }
 
-  function draw(noclear) {
-    g.reset();
-    var l = g.setFont("6x8:4").wrapString(text+' ', R.w-8);
+  function draw() {
+    g.reset().clearRect(Bangle.appRect);
+    var l = g.setFont("6x8:4").wrapString(text+'_', Bangle.appRect.w-8);
     if (!l) l = [];
-    if (!noclear) (flashToggle?(g.fillRect(findMarker(l))):(g.clearRect(findMarker(l))));
     if (l.length>4) l=l.slice(-4);
-    g.drawString(l.join("\n"),R.x+4,R.y+4);
+    g.drawString(l.join("\n"),Bangle.appRect.x+4,Bangle.appRect.y+4);
+    print(text);
+    print(l[0]);
   }
 
-  function isInside(rect, e) {
-    return e.x>=rect.x && e.x<rect.x+rect.w
-          && e.y>=rect.y && e.y<=rect.y+rect.h;
+  function processPath() {
+    let capital = false;
+    if (punctuationMode) {
+      path = path + '5';
+    }
+    if (extendedMode) {
+      path = path + '6';
+    }
+    if (path.length > 2 && path.slice(-1) == '2') { // capital
+      path = path.slice(0,-1);
+      capital = true;
+    }
+    let char = characterSet[path];
+    if (capital && char != "undefined") {
+      if (char.charCodeAt(0)>96 && char.charCodeAt(0)<123) {
+      char = char.toUpperCase();
+      } else {
+        char = undefined;
+      }
+    }
+    if (char != "undefined") {
+      print(char);
+      switch (char) {
+        case "#bs":
+          text = text.slice(0, -1);
+          break;
+        case "#pu-on":
+          punctuationMode = true;
+          break;
+        case "#pu-off":
+          punctuationMode = false;
+          break;
+        case "#ex-on":
+          extendedMode = true;
+          break;
+        case "#ex-off":
+          extendedMode = false;
+          break;
+        default:
+          text += char;
+      }
+      draw();
+    }
+    resetOverlay();
+    path = "";
   }
 
-  g.reset().clearRect(R);
-  draw(false);
-
-  var flashInterval = setInterval(() => {
-    flashToggle = !flashToggle;
-    draw(false);
-  }, 1000);
+  g.reset().clearRect(Bangle.appRect);
+  draw();
 
   let dragHandlerKB = e=>{
     "ram";
-    if (isInside(R, e)) {
-      if (lastDrag) g.reset().setColor("#f00").drawLine(lastDrag.x,lastDrag.y,e.x,e.y);
-      lastDrag = e.b ? e : 0;
+    if (e.b == 0) {
+      processPath();
+    } else {
+      corner = 0;
+      if (e.x < cornerSize && e.y < cornerSize) {
+        corner = 2;
+      }
+      if (e.x < cornerSize && e.y > g.getHeight() - cornerSize) {
+        corner = 1;
+      }
+      if (e.x > g.getWidth() - cornerSize && e.y < cornerSize) {
+        corner = 3;
+      }
+      if (e.x > g.getWidth() - cornerSize && e.y > g.getHeight() - cornerSize) {
+        corner = 4;
+      }
+
+      if (corner > 0 && path.slice(-1) != corner) {
+        path += corner;
+
+        let regex = new RegExp(corner.toString(), 'g' );
+        let count = (path.match(regex)||[]).length;
+        overlay.setColor(colours[count-1]);
+        print(count);
+        print(corner);
+        let x = (corner<3) ? 0 : g.getWidth() - (cornerSize);
+        let y = (corner>1 && corner<4) ? 0 : g.getHeight() - (cornerSize);
+        print(x);
+        print(y);
+        print(cornerSize);
+        overlay.fillRect(x, y, x + (cornerSize), y + (cornerSize));
+        Bangle.setLCDOverlay(overlay,0,0, {id: "cornerOverlay"});
+        print(path);
+      }
     }
-    print(e.x)
-    print(e.y)
   }
 
   let catchSwipe = ()=>{
@@ -64,12 +144,11 @@ exports.input = function(options) {
   };
 
   return new Promise((resolve,reject) => {
-    Bangle.setUI({mode:"custom", drag:dragHandlerKB, touch:touchHandlerKB, back:()=>{
-      Bangle.removeListener("stroke", strokeHandler);
+    Bangle.setUI({mode:"custom", drag:dragHandlerKB, btn:(n)=>{
       Bangle.prependListener&&Bangle.removeListener('swipe', catchSwipe); // Remove swipe lister if it was added with `Bangle.prependListener()` (fw2v19 and up).
-      if (flashInterval) clearInterval(flashInterval);
       Bangle.setUI();
       g.clearRect(Bangle.appRect);
+      Bangle.setLCDOverlay(undefined, {id: "cornerOverlay"});
       resolve(text);
     }});
     Bangle.prependListener&&Bangle.prependListener('swipe', catchSwipe); // Intercept swipes on fw2v19 and later. Should not break on older firmwares.
