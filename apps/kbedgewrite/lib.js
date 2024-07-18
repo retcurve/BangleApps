@@ -100,7 +100,7 @@ exports.input = function(options) {
   g.reset().clearRect(Bangle.appRect);
   draw();
 
-  let dragHandlerKB = e=>{
+  let dragHandler = e=>{
     "ram";
     if (e.b == 0) {
       processPath();
@@ -139,18 +139,13 @@ exports.input = function(options) {
     }
   }
 
-  let catchSwipe = ()=>{
-    E.stopEventPropagation&&E.stopEventPropagation();
-  };
-
   return new Promise((resolve,reject) => {
-    Bangle.setUI({mode:"custom", drag:dragHandlerKB, btn:(n)=>{
-      Bangle.prependListener&&Bangle.removeListener('swipe', catchSwipe); // Remove swipe lister if it was added with `Bangle.prependListener()` (fw2v19 and up).
+    Bangle.setUI({mode:"custom", drag:dragHandler, btn:()=>{
+      print('exit');
       Bangle.setUI();
       g.clearRect(Bangle.appRect);
       Bangle.setLCDOverlay(undefined, {id: "cornerOverlay"});
       resolve(text);
     }});
-    Bangle.prependListener&&Bangle.prependListener('swipe', catchSwipe); // Intercept swipes on fw2v19 and later. Should not break on older firmwares.
   });
 };
