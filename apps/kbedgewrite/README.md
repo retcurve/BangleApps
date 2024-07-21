@@ -8,7 +8,7 @@ Swipe from corner to corner to enter characters and press the button to submit t
 
 For a full character chart see https://depts.washington.edu/ewrite/downloads/EwChart.pdf
 
-Supported: letters (including capitals), numbers, backspace, space, and punctuation.
+Supported: letters (including capitals), numbers, backspace, space, and punctuation.\
 Currently unsupported: Extended mode, accents, cursor controls, and word-level stroking.
 
 ## Usage
