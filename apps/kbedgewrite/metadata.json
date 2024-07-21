@@ -1,5 +1,5 @@
 { "id": "kbedgewrite",
-  "name": "Edgewrite keyboard",
+  "name": "EdgeWrite keyboard",
   "version":"0.01",
   "description": "A library for text input via EdgeWrite swipe gestures",
   "icon": "app.png",
