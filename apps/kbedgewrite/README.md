@@ -2,12 +2,14 @@
 
 A library that provides a swipeable keyboard using the edgewrite system https://depts.washington.edu/ewrite/
 
-Swipe from corner to corner to enter characters or enable punctuation mode and press the button to submit the text to the calling app. 
+Swipe from corner to corner to enter characters and press the button to submit the text to the calling app. Letters can be capitalised by finishing the stroke in the top left corner. 
 
 ![](letters.gif)
 
 For a full character chart see https://depts.washington.edu/ewrite/downloads/EwChart.pdf
-Supported are letters (including capitals), numbers, backspace, space, and punctuation. Extended mode, accents, and cursor controls are not supported.
+
+Supported: letters (including capitals), numbers, backspace, space, and punctuation.
+Currently unsupported: Extended mode, accents, cursor controls, and word-level stroking.
 
 ## Usage
 
