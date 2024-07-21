@@ -6,10 +6,9 @@
   "type":"textinput",
   "tags": "keyboard",
   "supports" : ["BANGLEJS2"],
-  "screenshots": [{"url":"screenshot.png"}],
   "readme": "README.md",
   "storage": [
-    {"name":"textinput","url":"lib.js"}
-  ],
-  "data":[{"name":"characterset.json"}]
+    {"name":"textinput","url":"lib.js"},
+    {"name":"kbedgewrite.charset.json","url":"characterset.json"}
+  ]
 }

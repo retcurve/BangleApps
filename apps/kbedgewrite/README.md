@@ -1,17 +1,13 @@
-# Touch Keyboard
+# Edgewrite Keyboard
 
-A library that provides an on-screen keyboard for text input.
+A library that provides a swipeable keyboard using the edgewrite system https://depts.washington.edu/ewrite/
 
-## Settings
-Text size - small or big text font. Default=Big. Suggested=Small.
+Swipe from corner to corner to enter characters or enable punctuation mode and press the button to submit the text to the calling app. 
 
-Offset keyboard - display the keyboard on top, making it faster to see what character you have selected. Default=No. Suggested=Yes.
+![](letters.gif)
 
-Loop around - should the keyboard highlight loop around when going past the edges? Default=Yes. Suggested=No.
-
-One-to-one input and release to select - should the input correspond directly to discrete areas on the screen, instead of being handled by scaled relative changes in position on swipes? Default=No. Suggested=Yes.
-
-Speed scaling - how much should a swipe move the highligt on the keyboard? Higher number corresponds to slower movement. Not applicable if using one-to-one input. Default=24. Suggested=15.
+For a full character chart see https://depts.washington.edu/ewrite/downloads/EwChart.pdf
+Supported are letters (including capitals), numbers, backspace, space, and punctuation. Extended mode, accents, and cursor controls are not supported.
 
 ## Usage
 
@@ -37,12 +33,3 @@ The first argument to `input` is an object containing the following:
 
 (in the future, the ability to restrict usage of newline/etc may be added)
 
-## Make your own
-
-You can create your own keyboard input apps. Just ensure that they have
-`"type":"textinput",` in their metadata and provide a library called `textinput`
-that exports an `input` method.
-
-## To-do
-
-Make this Bangle.js 1 compatible (use left/right touch and up/down buttons)
