@@ -1,6 +1,6 @@
-# Edgewrite Keyboard
+# EdgeWrite Keyboard
 
-A library that provides a swipeable keyboard using the edgewrite system https://depts.washington.edu/ewrite/
+A library that provides a swipeable keyboard using the EdgeWrite system https://depts.washington.edu/ewrite/
 
 Swipe from corner to corner to enter characters and press the button to submit the text to the calling app. Letters can be capitalised by finishing the stroke in the top left corner. 
 
