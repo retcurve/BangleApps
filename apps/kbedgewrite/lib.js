@@ -1,49 +1,54 @@
 exports.input = function(options) {
+
+  require('widget_utils').hide();
+
   options = options||{};
   // Colours for number of corner occurrences
   let colours = ['#ff0', '#0f0', '#f00', '#00f'];
   let text = options.text;
   let punctuationMode = false;
-  // Create an overlay to display the corner boxes
-  let overlay = Graphics.createArrayBuffer(g.getWidth(), g.getHeight(), 8, {msb:true});
-  overlay.transparent = 0;
-  overlay.setFont("6x8:3");
-  Bangle.setLCDOverlay(overlay,0,0, {id: "cornerOverlay"});
+  g.setBgColor(g.theme.bg);
 
-  if ("string"!=typeof text) text="";
+  if ('string' != typeof text) text='';
 
   const cornerSize = g.getWidth() / 3;
 
-  let path = "";
+  let path = '';
 
-  let characterSet = Object.assign({}, require('Storage').readJSON("kbedgewrite.charset.json", true) || {});
+  let characterSet = Object.assign({}, require('Storage').readJSON('kbedgewrite.charset.json', true) || {});
 
-  function resetOverlay() {
-    let modeChar = "";
-    overlay.clear();
-    if (punctuationMode) {
-      modeChar = "P";
-    }
-    if (modeChar.length > 0) {
-      let x = (g.getWidth() / 2) - 12;
-      let y = g.getHeight() - 32;
-      overlay.setColor("#F00");
-      overlay.fillRect(x,y,x+24,y+32);
-      overlay.setColor("#FFF");
-      overlay.drawString(modeChar, x+4, y+4, false);
-    }
-    Bangle.setLCDOverlay(overlay,0,0, {id: "cornerOverlay"});
-  }
-
-  // Draw the text string
   function draw() {
-    g.reset().clearRect(Bangle.appRect);
-    let l = g.setFont("6x8:4").wrapString(text+'_', Bangle.appRect.w-8);
+    g.clear();
+    // Draw the text string
+    let l = g.setFont('6x8:4').wrapString(text + '_', g.getWidth());
     if (!l) l = [];
     if (l.length>4) l=l.slice(-4);
-    g.drawString(l.join("\n"),Bangle.appRect.x+4,Bangle.appRect.y+4);
-    print(text);
-    print(l[0]);
+    g.setColor(g.theme.fg);
+    g.drawString(l.join('\n'));
+
+    // Draw punctuation flag
+    if (punctuationMode > 0) {
+      let x = (g.getWidth() / 2) - 12;
+      let y = g.getHeight() - 32;
+      g.setColor('#F00');
+      g.fillRect(x,y,x+24,y+32);
+      g.setColor('#FFF');
+      g.setFont('6x8:4');
+      g.drawString('P', x+4, y+4, false);
+    }
+
+    // Draw corners
+    for (let corner=1; corner<5; corner++) {
+      // Count the occurences of the current corner to set the appropriate colour
+      let regex = new RegExp(corner.toString(), 'g' );
+      let count = (path.match(regex)||[]).length;
+      if (count>0) {
+        g.setColor(colours[count-1]);
+        let x = (corner<3) ? 0 : g.getWidth() - (cornerSize);
+        let y = (corner>1 && corner<4) ? 0 : g.getHeight() - (cornerSize);
+        g.fillRect(x, y, x + (cornerSize), y + (cornerSize));
+      }
+    }
   }
 
   function processPath() {
@@ -64,7 +69,7 @@ exports.input = function(options) {
     let char = characterSet[path];
 
     // Handle capitals
-    if (capital && char != "undefined") {
+    if (capital && char != 'undefined') {
       if (char.charCodeAt(0)>96 && char.charCodeAt(0)<123) {
       char = char.toUpperCase();
       } else {
@@ -72,37 +77,43 @@ exports.input = function(options) {
       }
     }
 
-    if (char != "undefined") {
-      print(char);
+    if (char != 'undefined') {
       switch (char) {
         // Backspace
-        case "#bs":
+        case '#bs':
           text = text.slice(0, -1);
           break;
+        // Word Backspace
+        case '#wbs':
+          let indexChar = ' ';
+          let lastIndex = text.lastIndexOf(' ');
+          if (text.lastIndexOf('\n') > lastIndex) {
+            indexChar = '\n';
+          }
+          if (text.lastIndexOf('\t') > lastIndex) {
+            indexChar = '\t';
+          }
+          text = text.split(indexChar).slice(0, -1).join(indexChar);
+          break;
         // Enable punctuation mode
-        case "#pu-on":
+        case '#pu-on':
           punctuationMode = true;
           break;
         // Disable punctuation mode
-        case "#pu-off":
+        case '#pu-off':
           punctuationMode = false;
           break;
         // Append character
         default:
           text += char;
       }
-      draw();
     }
-    // Reset path and corner boxes
-    resetOverlay();
+    // Reset path
     path = "";
   }
 
-  g.reset().clearRect(Bangle.appRect);
-  draw();
-
   let dragHandler = e=>{
-    "ram";
+    'ram';
     if (e.b == 0) { // Finger lifted, process completed path
       processPath();
     } else {
@@ -123,36 +134,23 @@ exports.input = function(options) {
       // Append new corner to path
       if (corner > 0 && path.slice(-1) != corner) {
         path += corner;
-
-        // Count the occurences of the current corner to set the appropriate colour
-        let regex = new RegExp(corner.toString(), 'g' );
-        let count = (path.match(regex)||[]).length;
-        overlay.setColor(colours[count-1]);
-
-        print(count);
-        print(corner);
-        // Draw corner box on overlay
-        let x = (corner<3) ? 0 : g.getWidth() - (cornerSize);
-        let y = (corner>1 && corner<4) ? 0 : g.getHeight() - (cornerSize);
-        print(x);
-        print(y);
-        print(cornerSize);
-        overlay.fillRect(x, y, x + (cornerSize), y + (cornerSize));
-        Bangle.setLCDOverlay(overlay,0,0, {id: "cornerOverlay"});
-        print(path);
       }
     }
-  }
+              draw();
+  };
+
+  // Draw initial string
+  draw();
 
   return new Promise((resolve,reject) => {
-    Bangle.setUI({mode:"custom", drag:dragHandler, btn:()=>{
+    Bangle.setUI({mode: 'custom', drag: dragHandler, btn: () => {
       // Exit and return text on button
-      print('exit');
       Bangle.setUI();
-      g.clearRect(Bangle.appRect);
-      // Remove overlay
-      Bangle.setLCDOverlay(undefined, {id: "cornerOverlay"});
+      g.clear();
+      require('widget_utils').show();
       resolve(text);
     }});
   });
+
+
 };
