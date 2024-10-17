@@ -8,30 +8,7 @@ Swipe from corner to corner to enter characters and press the button to submit t
 
 For a full character chart see [EwChart.pdf](EwChart.pdf)
 
-Supported: letters (including capitals), numbers, backspace, space, and punctuation.\
-Currently unsupported: Extended mode, accents, cursor controls, and word-level stroking.
+**Supported:** Letters (including capitals), numbers, backspace, word backspace, space, punctuation, new line, and some cursor controls (left, right, word left/right, home, end).
 
-## Usage
-
-In your app's metadata, add:
-
-```
-  "dependencies": {"textinput":"type"},
-```
-
-From inside your app, call:
-
-```
-Bangle.loadWidgets();
-Bangle.drawWidgets();
-require("textinput").input({text:"Foo"}).then(result => {
-  console.log("Text input", E.toJS(result));
-});
-```
-
-The first argument to `input` is an object containing the following:
-
-* `text` - initial text to edit
-
-(in the future, the ability to restrict usage of newline/etc may be added)
+**Unsupported:** Extended mode, accents, cursor controls, and word-level stroking.
 
