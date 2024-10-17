@@ -10,15 +10,25 @@ exports.input = function(options) {
   const cornerSize = g.getWidth() / 3;
   let punctuationMode = false;
   let path = '';
+  let cursorPos = text.length;
+
   let characterSet = Object.assign({}, require('Storage').readJSON('kbedgewrite.charset.json', true) || {});
 
   function draw() {
     g.clearRect(Bangle.appRect).setClipRect(Bangle.appRect.x, Bangle.appRect.y, Bangle.appRect.x2, Bangle.appRect.y2);
 
     // Draw the text string
-    let l = g.setFont('6x8:4').wrapString(text + '_', g.getWidth());
+    let l = g.setFont('6x8:4').wrapString(text.substring(0, cursorPos) + '_' + text.substring(cursorPos), g.getWidth());
     if (!l) l = [];
-    if (l.length>4) l=l.slice(-4);
+    if (l.length>5) {
+      let textPos = 0;
+      let lineNum;
+      for (lineNum = 0; lineNum < l.length; lineNum++) {
+        textPos = textPos + l[lineNum].length - 1;
+        if (textPos >= cursorPos) break;
+      }
+      l=l.slice(lineNum - l.length - 5);
+    }
     g.setColor(g.theme.fg);
     g.setFontAlign(-1, -1, 0);
     g.drawString(l.join('\n'), Bangle.appRect.x, Bangle.appRect.y);
@@ -57,7 +67,8 @@ exports.input = function(options) {
     }
 
     // Capital letters end in 2, remove that and set a capital flag
-    if (path.length > 2 && path.slice(-1) == '2') {
+    // but only if the path isn't 232 (cursor right)
+    if (path != '232' && path.length > 2 && path.slice(-1) == '2') {
       path = path.slice(0,-1);
       capital = true;
     }
@@ -79,25 +90,23 @@ exports.input = function(options) {
       switch (char) {
         // Backspace
         case '#bs': {
-          text = text.slice(0, -1);
+          text = text.substring(0,cursorPos-1) + text.substring(cursorPos);
+          cursorPos--;
           break;
         }
         // Word Backspace
         case '#wbs': {
-          let breakChar = ' ';
-          let lastIndex = text.lastIndexOf(' ');
-          if (text.lastIndexOf('\n') > lastIndex) {
-            breakChar = '\n';
-          }
-          if (text.lastIndexOf('\t') > lastIndex) {
-            breakChar = '\t';
-          }
-          // If last character is the break character, remove it
-          if (lastIndex == text.length - 1) {
-            text = text.slice(0, -1);
+          let lastIndex = text.substring(0, cursorPos).lastIndexOf(' ');
+
+          // If cursor character is the break character, remove it
+          if (lastIndex == cursorPos - 1) {
+            text = text.substring(0, cursorPos-1) + text.substring(cursorPos);
+            cursorPos--;
           }
           // Remove everything up to the last word break character
-          text = text.split(breakChar).slice(0, -1).join(breakChar) + breakChar;
+          let words = text.substring(0, cursorPos).split(' ');
+          text = words.slice(0, -1).join(' ') + ' ' + text.substring(cursorPos);
+          cursorPos = cursorPos - words.slice(-1)[0].length;
           break;
         }
         // Enable punctuation mode
@@ -110,9 +119,49 @@ exports.input = function(options) {
           punctuationMode = false;
           break;
         }
+        case '#cur-left': {
+          if (cursorPos > 0) {
+            cursorPos--;
+          }
+          break;
+        }
+        case '#cur-right': {
+          if (cursorPos < text.length) {
+            cursorPos++;
+          }
+          break;
+        }
+        case '#cur-word-left': {
+          if (text.substring(cursorPos-1, cursorPos) == ' ') {
+              cursorPos--;
+          }
+          cursorPos = 1 + text.substring(0, cursorPos).lastIndexOf(' ');
+          break;
+        }
+        case '#cur-word-right': {
+          if (text.substring(cursorPos, cursorPos+1) == ' ') {
+              cursorPos++;
+          }
+          let nextPos = text.substring(cursorPos).indexOf(' ');
+          if (nextPos > -1) {
+            cursorPos = cursorPos + nextPos;
+          } else {
+            cursorPos = text.length;
+          }
+          break;
+        }
+        case '#cur-home': {
+          cursorPos = 0;
+          break;
+        }
+        case '#cur-end': {
+          cursorPos = text.length;
+          break;
+        }
         // Append character
         default: {
-          text += char;
+          text = text.substring(0, cursorPos) + char + text.substring(cursorPos);
+          cursorPos++;
         }
       }
     }
