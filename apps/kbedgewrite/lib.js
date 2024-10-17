@@ -78,12 +78,12 @@ exports.input = function(options) {
     if (char != 'undefined') {
       switch (char) {
         // Backspace
-        case '#bs':
+        case '#bs': {
           text = text.slice(0, -1);
           break;
-
+        }
         // Word Backspace
-        case '#wbs':
+        case '#wbs': {
           let breakChar = ' ';
           let lastIndex = text.lastIndexOf(' ');
           if (text.lastIndexOf('\n') > lastIndex) {
@@ -99,20 +99,21 @@ exports.input = function(options) {
           // Remove everything up to the last word break character
           text = text.split(breakChar).slice(0, -1).join(breakChar) + breakChar;
           break;
-
+        }
         // Enable punctuation mode
-        case '#pu-on':
+        case '#pu-on': {
           punctuationMode = true;
           break;
-
+        }
         // Disable punctuation mode
-        case '#pu-off':
+        case '#pu-off': {
           punctuationMode = false;
           break;
-
+        }
         // Append character
-        default:
+        default: {
           text += char;
+        }
       }
     }
     // Reset path
