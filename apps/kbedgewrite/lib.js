@@ -1,30 +1,27 @@
 exports.input = function(options) {
 
-  require('widget_utils').hide();
-
   options = options||{};
-  // Colours for number of corner occurrences
-  let colours = ['#ff0', '#0f0', '#f00', '#00f'];
   let text = options.text;
-  let punctuationMode = false;
-  g.setBgColor(g.theme.bg);
-
   if ('string' != typeof text) text='';
 
+  // Colours for number of corner occurrences
+  let colours = ['#ff0', '#0f0', '#f00', '#00f' ,'#0ff', '#f0f', '#fff'];
+
   const cornerSize = g.getWidth() / 3;
-
+  let punctuationMode = false;
   let path = '';
-
   let characterSet = Object.assign({}, require('Storage').readJSON('kbedgewrite.charset.json', true) || {});
 
   function draw() {
-    g.clear();
+    g.clearRect(Bangle.appRect).setClipRect(Bangle.appRect.x, Bangle.appRect.y, Bangle.appRect.x2, Bangle.appRect.y2);
+
     // Draw the text string
     let l = g.setFont('6x8:4').wrapString(text + '_', g.getWidth());
     if (!l) l = [];
     if (l.length>4) l=l.slice(-4);
     g.setColor(g.theme.fg);
-    g.drawString(l.join('\n'));
+    g.setFontAlign(-1, -1, 0);
+    g.drawString(l.join('\n'), Bangle.appRect.x, Bangle.appRect.y);
 
     // Draw punctuation flag
     if (punctuationMode > 0) {
@@ -73,6 +70,7 @@ exports.input = function(options) {
       if (char.charCodeAt(0)>96 && char.charCodeAt(0)<123) {
       char = char.toUpperCase();
       } else {
+        // Anything that can't be capitalised is an invalid path
         char = undefined;
       }
     }
@@ -83,26 +81,35 @@ exports.input = function(options) {
         case '#bs':
           text = text.slice(0, -1);
           break;
+
         // Word Backspace
         case '#wbs':
-          let indexChar = ' ';
+          let breakChar = ' ';
           let lastIndex = text.lastIndexOf(' ');
           if (text.lastIndexOf('\n') > lastIndex) {
-            indexChar = '\n';
+            breakChar = '\n';
           }
           if (text.lastIndexOf('\t') > lastIndex) {
-            indexChar = '\t';
+            breakChar = '\t';
           }
-          text = text.split(indexChar).slice(0, -1).join(indexChar);
+          // If last character is the break character, remove it
+          if (lastIndex == text.length - 1) {
+            text = text.slice(0, -1);
+          }
+          // Remove everything up to the last word break character
+          text = text.split(breakChar).slice(0, -1).join(breakChar) + breakChar;
           break;
+
         // Enable punctuation mode
         case '#pu-on':
           punctuationMode = true;
           break;
+
         // Disable punctuation mode
         case '#pu-off':
           punctuationMode = false;
           break;
+
         // Append character
         default:
           text += char;
@@ -116,38 +123,41 @@ exports.input = function(options) {
     'ram';
     if (e.b == 0) { // Finger lifted, process completed path
       processPath();
+      draw();
     } else {
       let corner = 0;
-      if (e.x < cornerSize && e.y < cornerSize) {
-        corner = 2;
-      }
-      if (e.x < cornerSize && e.y > g.getHeight() - cornerSize) {
-        corner = 1;
-      }
-      if (e.x > g.getWidth() - cornerSize && e.y < cornerSize) {
-        corner = 3;
-      }
-      if (e.x > g.getWidth() - cornerSize && e.y > g.getHeight() - cornerSize) {
-        corner = 4;
+
+      if (e.x < cornerSize) {
+        if (e.y < cornerSize) {
+          corner = 2;
+        } else if (e.y > g.getHeight() - cornerSize) {
+          corner = 1;
+        }
+      } else if (e.x > g.getWidth() - cornerSize) {
+        if (e.y < cornerSize) {
+          corner = 3;
+        } else if (e.y > g.getHeight() - cornerSize) {
+          corner = 4;
+        }
       }
 
       // Append new corner to path
       if (corner > 0 && path.slice(-1) != corner) {
         path += corner;
+        draw();
       }
     }
-              draw();
   };
 
   // Draw initial string
+  g.setBgColor(g.theme.bg);
   draw();
 
   return new Promise((resolve,reject) => {
     Bangle.setUI({mode: 'custom', drag: dragHandler, btn: () => {
       // Exit and return text on button
       Bangle.setUI();
-      g.clear();
-      require('widget_utils').show();
+      g.clearRect(Bangle.appRect);
       resolve(text);
     }});
   });
