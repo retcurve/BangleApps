@@ -169,7 +169,7 @@ exports.input = function(options) {
         // Append character
         default: {
           text = text.substring(0, cursorPos) + char + text.substring(cursorPos);
-          cursorPos++;
+          cursorPos = cursorPos + char.length;
         }
       }
     }
