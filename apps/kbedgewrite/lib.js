@@ -1,5 +1,12 @@
 exports.input = function(options) {
 
+  let chart = {
+    width : 352, height : 244, bpp : 1,
+    buffer : require("heatshrink").decompress(atob("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"))
+  };
+  let chartX = 0;
+  let chartY = 0;
+
   options = options||{};
   let text = options.text;
   if ('string' != typeof text) text='';
@@ -11,6 +18,7 @@ exports.input = function(options) {
   let punctuationMode = false;
   let path = '';
   let cursorPos = text.length;
+  let chartShown = false;
 
   let characterSet = Object.assign({}, require('Storage').readJSON('kbedgewrite.charset.json', true) || {});
 
@@ -171,31 +179,39 @@ exports.input = function(options) {
 
   let dragHandler = e=>{
     'ram';
-    if (e.b == 0) { // Finger lifted, process completed path
-      processPath();
-      draw();
-    } else {
-      let corner = 0;
-
-      if (e.x < cornerSize) {
-        if (e.y < cornerSize) {
-          corner = 2;
-        } else if (e.y > g.getHeight() - cornerSize) {
-          corner = 1;
-        }
-      } else if (e.x > g.getWidth() - cornerSize) {
-        if (e.y < cornerSize) {
-          corner = 3;
-        } else if (e.y > g.getHeight() - cornerSize) {
-          corner = 4;
-        }
-      }
-
-      // Append new corner to path
-      if (corner > 0 && path.slice(-1) != corner) {
-        path += corner;
+    if (!chartShown) {
+      if (e.b == 0) { // Finger lifted, process completed path
+        processPath();
         draw();
+      } else {
+        let corner = 0;
+
+        if (e.x < cornerSize) {
+          if (e.y < cornerSize) {
+            corner = 2;
+          } else if (e.y > g.getHeight() - cornerSize) {
+            corner = 1;
+          }
+        } else if (e.x > g.getWidth() - cornerSize) {
+          if (e.y < cornerSize) {
+            corner = 3;
+          } else if (e.y > g.getHeight() - cornerSize) {
+            corner = 4;
+          }
+        }
+
+        // Append new corner to path
+        if (corner > 0 && path.slice(-1) != corner) {
+          path += corner;
+          draw();
+        }
       }
+    } else {
+      // Drag chart
+      chartX = Math.clip(chartX + e.dx, -chart.width/2, 0);
+      chartY = Math.clip(chartY + e.dy, -chart.height/2, 0);
+      g.clearRect(Bangle.appRect).setClipRect(Bangle.appRect.x, Bangle.appRect.y, Bangle.appRect.x2, Bangle.appRect.y2);
+      g.drawImage(chart, chartX, chartY + Bangle.appRect.y);
     }
   };
 
@@ -204,12 +220,29 @@ exports.input = function(options) {
   draw();
 
   return new Promise((resolve,reject) => {
-    Bangle.setUI({mode: 'custom', drag: dragHandler, btn: () => {
-      // Exit and return text on button
-      Bangle.setUI();
-      g.clearRect(Bangle.appRect);
-      resolve(text);
-    }});
+    Bangle.setUI({
+      mode: 'custom', 
+      drag: dragHandler, 
+      touch: (button, xy) => {
+        if (xy.type == 2) {
+          chartShown = true;
+          path = "";
+          g.clearRect(Bangle.appRect);
+          g.drawImage(chart, chartX, chartY + Bangle.appRect.y);
+        }
+      },
+      btn: () => {
+        if (chartShown) {
+          chartShown = false;
+          draw();
+        } else {
+          // Exit and return text on button
+          Bangle.setUI();
+          g.clearRect(Bangle.appRect);
+          resolve(text);
+        }
+      }
+    });
   });
 
 
