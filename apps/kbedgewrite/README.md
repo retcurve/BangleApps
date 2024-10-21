@@ -2,36 +2,17 @@
 
 A library that provides a swipeable keyboard using the EdgeWrite system https://depts.washington.edu/ewrite/
 
-Swipe from corner to corner to enter characters and press the button to submit the text to the calling app. Letters can be capitalised by finishing the stroke in the top left corner. 
-
-![](letters.gif)
-
-For a full character chart see https://depts.washington.edu/ewrite/downloads/EwChart.pdf
-
-Supported: letters (including capitals), numbers, backspace, space, and punctuation.\
-Currently unsupported: Extended mode, accents, cursor controls, and word-level stroking.
-
 ## Usage
 
-In your app's metadata, add:
+Swipe from corner to corner to enter characters, then press the button to submit the text to the calling app. To capitalize letters, complete your stroke in the top left corner.
 
-```
-  "dependencies": {"textinput":"type"},
-```
+To display the in app character chart, long press the screen; you can scroll through it by swiping. A dot represents the starting position of the swipe. Press the button to go back.
 
-From inside your app, call:
+![](letters.png)
 
-```
-Bangle.loadWidgets();
-Bangle.drawWidgets();
-require("textinput").input({text:"Foo"}).then(result => {
-  console.log("Text input", E.toJS(result));
-});
-```
+For a full character chart see [EwChart.pdf](EwChart.pdf)
 
-The first argument to `input` is an object containing the following:
+**Supported:** Letters (including capitals), numbers, backspace, word backspace, space, punctuation, new line, and some cursor controls (left, right, word left/right, home, end).
 
-* `text` - initial text to edit
-
-(in the future, the ability to restrict usage of newline/etc may be added)
+**Unsupported:** Extended mode, accents, and word-level stroking.
 
