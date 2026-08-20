@@ -36,6 +36,19 @@
     return best; // nearest, so an old hand-edited speed still lands somewhere sane
   }
 
+  // 3 is the largest that still clears the message icon at the top
+  var FONT_SIZES = [
+    {name: /*LANG*/"Small", value: 1},
+    {name: /*LANG*/"Medium", value: 2},
+    {name: /*LANG*/"Large", value: 3}
+  ];
+
+  function fontSizeIndex() {
+    for (var i = 0; i < FONT_SIZES.length; i++)
+      if (FONT_SIZES[i].value == settings.fontSize) return i;
+    return 1; // Medium, matching the default
+  }
+
   var COLOURS = [
     {name: /*LANG*/"Theme", value: ''},
     {name: /*LANG*/"White", value: '#fff'},
@@ -68,10 +81,10 @@
       onchange: v => writeSettings("loops", v)
     },
     /*LANG*/'Font size': {
-      // 3 is the largest that still clears the message icon at the top
-      value: settings.fontSize,
-      min: 1, max: 3, step: 1,
-      onchange: v => writeSettings("fontSize", v)
+      value: fontSizeIndex(),
+      min: 0, max: FONT_SIZES.length - 1, step: 1, wrap: true,
+      format: v => FONT_SIZES[v].name,
+      onchange: v => writeSettings("fontSize", FONT_SIZES[v].value)
     },
     /*LANG*/'Rotate': {
       value: (settings.rotate >= 0 && settings.rotate <= 3) ? settings.rotate : 0,

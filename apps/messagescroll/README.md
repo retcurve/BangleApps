@@ -17,9 +17,9 @@ There is nothing to launch. Install it and it takes over when a message arrives.
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
-| `Speed` | `Medium` | `Slow`, `Medium`, `Fast` |
-| `Repeats` | `3` | |Number of times to scroll the message |
-| `Font size` | `2` | 1 - 3 |
+| `Speed` | `Medium` | Scrolling speed. Slow, Medium, or Fast |
+| `Repeats` | `3` | Number of times to scroll the message |
+| `Font size` | `Medium` | Small, Medium, or Large |
 | `Rotate` | `0°` | Screen rotation, in 90 degree steps |
 | `Colour` | `Theme` | Text colour. `Theme` follows the system theme foreground |
 | `Max bright` | `on` | Force maximum LCD brightness while scrolling |
