@@ -19,10 +19,10 @@ const SETTINGS = 'messagescroll.json';
 const settings = Object.assign({
   maxBright: true,  // force max LCD brightness while scrolling
   doNotDim: true,   // keep the backlight on while scrolling
-  speed: 180,       // scroll speed, in pixels per second
+  speed: 300,       // scroll speed, in pixels per second
   loops: 3,         // times to scroll the message before giving up
   fontSize: 2,      // Doto font scale
-  rotate: 0,        // screen rotation
+  rotate: 0,        // screen rotation, 0-3 quarter turns (as g.setRotation)
   fg: '#fff',
   bg: '#000'
 }, require('Storage').readJSON(SETTINGS, true) || {});
@@ -109,7 +109,9 @@ function start() {
     if (!quiet) Bangle.setBacklight(1);
   }
   if (settings.maxBright && !quiet) Bangle.setLCDBrightness(1);
-  g.setRotation(settings.rotate);
+  /* 0-3 quarter turns. Anything else (an older build stored degrees here) falls
+  back to 0, matching what the settings menu shows for an out-of-range value. */
+  g.setRotation((settings.rotate >= 0 && settings.rotate <= 3) ? settings.rotate : 0);
 
   /* Buzz with the user's configured pattern - messages.buzz is a no-op in quiet
   mode - then cancel the repeat, since the message is already filling the screen.

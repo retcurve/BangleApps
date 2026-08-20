@@ -25,10 +25,10 @@ There is nothing to launch. Install it and it takes over when a message arrives.
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
-| `Speed` | `180px/s` | Scroll speed, in pixels per second |
+| `Speed` | `Medium` | `Slow` 200px/s, `Medium` 300px/s, `Fast` 400px/s |
 | `Repeats` | `3` | Times to scroll the message before giving up |
 | `Font size` | `2` | Doto font scale (3 is the largest that clears the icon) |
-| `Rotate` | `0°` | Screen rotation |
+| `Rotate` | `0°` | Screen rotation, in 90 degree steps |
 | `Colours` | `White` | Text/background preset |
 | `Max bright` | `on` | Force maximum LCD brightness while scrolling |
 | `Don't dim` | `on` | Keep the backlight on while scrolling |
