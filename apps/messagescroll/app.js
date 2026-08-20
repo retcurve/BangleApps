@@ -111,9 +111,9 @@ function start() {
   if (settings.maxBright) Bangle.setLCDBrightness(1);
   g.setRotation((settings.rotate >= 0 && settings.rotate <= 3) ? settings.rotate : 0);
 
-  /* Buzz with the user's configured pattern */
+  /* Buzz with the user's configured pattern, including any repeats. The
+  repeats are cancelled by the stopBuzz() in exitScroll. */
   require("messages").buzz(msg.src);
-  require("messages").stopBuzz();
 
   g.setBgColor(g.theme.bg).clear();
   g.setColor(require("messageicons").getColor(msg));
