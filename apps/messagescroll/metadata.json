@@ -3,7 +3,7 @@
   "name": "Message Scroll",
   "shortName": "Msg Scroll",
   "version": "0.01",
-  "description": "Scrolls new messages across the whole screen in a huge font, so they can be read at arm's length without unlocking the watch",
+  "description": "Scrolls new messages across the whole screen in a huge font, so they can be read at arm's length",
   "author": "retcurve",
   "icon": "app.png",
   "type": "bootloader",
@@ -13,7 +13,8 @@
   "readme": "README.md",
   "storage": [
     {"name":"messagescroll.0.boot.js","url":"boot.js"},
-    {"name":"messagescroll.app.js","url":"app.js"}
+    {"name":"messagescroll.app.js","url":"app.js"},
+    {"name":"messagescroll.settings.js","url":"settings.js"}
   ],
   "data": [{"name":"messagescroll.json"}]
 }

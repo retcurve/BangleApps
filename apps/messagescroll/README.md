@@ -21,18 +21,19 @@ There is nothing to launch. Install it and it takes over when a message arrives.
 
 ## Settings
 
-There is no settings menu yet. Settings are read from `messagescroll.json`:
+`Settings` -> `App Settings` -> `Message Scroll`:
 
-| Key | Default | Meaning |
+| Setting | Default | Meaning |
 | --- | --- | --- |
-| `speed` | `150` | Scroll speed, in pixels per second |
-| `loops` | `3` | Times to scroll the message before giving up |
-| `fontSize` | `2` | Doto font scale |
-| `rotate` | `0` | Screen rotation, `0`/`90`/`180`/`270` |
-| `maxBright` | `true` | Force maximum LCD brightness while scrolling |
-| `doNotDim` | `true` | Keep the backlight on while scrolling |
-| `fg` | `'#fff'` | Text colour |
-| `bg` | `'#000'` | Background colour |
+| `Speed` | `180px/s` | Scroll speed, in pixels per second |
+| `Repeats` | `3` | Times to scroll the message before giving up |
+| `Font size` | `2` | Doto font scale (3 is the largest that clears the icon) |
+| `Rotate` | `0°` | Screen rotation |
+| `Colours` | `White` | Text/background preset |
+| `Max bright` | `on` | Force maximum LCD brightness while scrolling |
+| `Don't dim` | `on` | Keep the backlight on while scrolling |
+
+These are stored in `messagescroll.json`.
 
 In Quiet Mode the message is still shown, but the brightness and backlight are
 left alone and the watch does not buzz.

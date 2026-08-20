@@ -19,7 +19,7 @@ const SETTINGS = 'messagescroll.json';
 const settings = Object.assign({
   maxBright: true,  // force max LCD brightness while scrolling
   doNotDim: true,   // keep the backlight on while scrolling
-  speed: 150,       // scroll speed, in pixels per second
+  speed: 180,       // scroll speed, in pixels per second
   loops: 3,         // times to scroll the message before giving up
   fontSize: 2,      // Doto font scale
   rotate: 0,        // screen rotation
