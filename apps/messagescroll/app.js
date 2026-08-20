@@ -9,31 +9,25 @@ Graphics.prototype.setFontDoto = function(scale) {
   );
 };
 
-/* Loaded by messagescroll.0.boot.js, which has already saved the message and
-claimed it. We own the whole screen and the whole interpreter: no widgets are
-loaded, so nothing calls g.reset() behind our back, and exiting via load()
-restores every global we touch. */
-
 // Load settings
 const SETTINGS = 'messagescroll.json';
 const settings = Object.assign({
   maxBright: true,  // force max LCD brightness while scrolling
   doNotDim: true,   // keep the backlight on while scrolling
   speed: 300,       // scroll speed, in pixels per second
-  loops: 3,         // times to scroll the message before giving up
+  loops: 3,         // times to scroll the message
   fontSize: 2,      // Doto font scale
   rotate: 0,        // screen rotation, 0-3 quarter turns (as g.setRotation)
   fg: ''            // text colour; '' follows the system theme foreground
 }, require('Storage').readJSON(SETTINGS, true) || {});
 
-const FONT_HEIGHT = 40; // base height of the Doto font, see setFontDoto above
+const FONT_HEIGHT = 40; // base height of the Doto font
 const ICON_SIZE = 48;   // 24x24 message icon at scale 2
 const BODY_CHARS = 60;  // how much of the message body to show
 const FRAME_MS = 20;    // target frame interval
 const IDLE_MS = 5;      // always yield at least this long, so BLE/buzz aren't starved
 
 const sysSettings = require('Storage').readJSON('setting.json', 1) || {};
-const quiet = sysSettings.quiet;
 
 /* The boot handler saved the message immediately before loading us, so it is
 the newest entry in the store. Skip music/nav in case one landed in between. */
@@ -44,7 +38,7 @@ const msg = require("messages").getMessages().find(
 let text, textWidth, textY, bandY1, bandY2, startX, pxPerMs;
 let t0, loopsDone = 0;
 let scrollTimeout, lockHandler, dismissWatch;
-let origBacklightTimeout; // undefined = we never touched it
+let origBacklightTimeout;
 
 function buildText(m) {
   let t = "";
@@ -67,27 +61,22 @@ function exitScroll(openGui) {
     clearWatch(dismissWatch);
     dismissWatch = undefined;
   }
-  require("messages").stopBuzz(); // otherwise repeat buzzes outlive the scroll
+  require("messages").stopBuzz();
   restoreDisplay();
   if (openGui && require("Storage").read("messagegui")) require("messages").openGUI(msg);
   else Bangle.load();
 }
 
-/* Put the display back the way we found it. This can't be left to load(): with
-Fast Loading installed Bangle.load() doesn't re-run .boot0 at all, and even a
-full load only restores rotation when the *system* rotate setting is non-zero
-(apps/boot/bootupdate.js), so our rotation would leak into the clock. */
+/* Put the display back the way we found it. */
 function restoreDisplay() {
   const rot = sysSettings.rotate || 0;
   g.setRotation(rot & 3, rot >> 2); // same decoding as .boot0 uses
   if (origBacklightTimeout !== undefined)
     Bangle.setOptions({backlightTimeout: origBacklightTimeout});
-  if (settings.maxBright && !quiet)
+  if (settings.maxBright)
     Bangle.setLCDBrightness(sysSettings.brightness === undefined ? 1 : sysSettings.brightness);
 }
 
-/* Draw one frame. Only the text band is cleared and redrawn - the icon above it
-never moves, so it is drawn once in start() and left alone. */
 function frame() {
   const frameStart = Date.now();
   const x = startX - (frameStart - t0) * pxPerMs;
@@ -100,10 +89,6 @@ function frame() {
     t0 = Date.now();
   }
 
-  /* Self-paced rather than setInterval: a slow frame delays the next one instead
-  of queueing up behind it, and IDLE_MS guarantees the interpreter always gets a
-  breather for BLE and the buzz timers. Position comes from the clock, not the
-  frame count, so `speed` stays honest however long a frame actually takes. */
   scrollTimeout = setTimeout(frame, Math.max(IDLE_MS, FRAME_MS - (Date.now() - frameStart)));
 }
 
@@ -121,21 +106,15 @@ function start() {
   if (settings.doNotDim) {
     origBacklightTimeout = Bangle.getOptions().backlightTimeout;
     Bangle.setOptions({backlightTimeout: 0});
-    if (!quiet) Bangle.setBacklight(1);
+    Bangle.setBacklight(1);
   }
-  if (settings.maxBright && !quiet) Bangle.setLCDBrightness(1);
-  /* 0-3 quarter turns. Anything else (an older build stored degrees here) falls
-  back to 0, matching what the settings menu shows for an out-of-range value. */
+  if (settings.maxBright) Bangle.setLCDBrightness(1);
   g.setRotation((settings.rotate >= 0 && settings.rotate <= 3) ? settings.rotate : 0);
 
-  /* Buzz with the user's configured pattern - messages.buzz is a no-op in quiet
-  mode - then cancel the repeat, since the message is already filling the screen.
-  Drop the stopBuzz call to get the usual nagging repeat back. */
+  /* Buzz with the user's configured pattern */
   require("messages").buzz(msg.src);
   require("messages").stopBuzz();
 
-  // Static part of the screen, drawn once. The background always follows the
-  // system theme, so the scroll doesn't look out of place against the clock.
   g.setBgColor(g.theme.bg).clear();
   g.setColor(require("messageicons").getColor(msg));
   g.drawImage(require("messageicons").getImage(msg),

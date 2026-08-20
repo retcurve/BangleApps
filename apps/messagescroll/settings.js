@@ -13,15 +13,12 @@
   };
 
   var settings = Object.assign({}, DEFAULTS, require('Storage').readJSON(FILE, true) || {});
-  delete settings.bg; // background follows the system theme now; drop the old key
 
   function writeSettings(key, value) {
     settings[key] = value;
     require('Storage').writeJSON(FILE, settings);
   }
 
-  /* Stored value is what g.setRotation() wants (0-3 quarter turns); only the
-  label is in degrees. Storing degrees here is a silent no-op on the device. */
   var ROTATIONS = [0, 90, 180, 270];
 
   var SPEEDS = [
@@ -39,8 +36,6 @@
     return best; // nearest, so an old hand-edited speed still lands somewhere sane
   }
 
-  /* Text colour only - the background always follows the system theme. "Theme"
-  keeps the text readable whichever theme is set; the rest are B2-safe colours. */
   var COLOURS = [
     {name: /*LANG*/"Theme", value: ''},
     {name: /*LANG*/"White", value: '#fff'},

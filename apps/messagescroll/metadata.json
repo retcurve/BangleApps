@@ -3,7 +3,8 @@
   "name": "Message Scroll",
   "shortName": "Msg Scroll",
   "version": "0.01",
-  "description": "Scrolls new messages across the whole screen in a huge font, so they can be read at arm's length",
+  "screenshots" : [ { "url":"screenshot.gif" } ]
+  "description": "Scrolls new messages across the whole screen in a large font, so they can be read at arm's length",
   "author": "retcurve",
   "icon": "app.png",
   "type": "bootloader",
