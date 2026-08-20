@@ -51,13 +51,14 @@
 
   var COLOURS = [
     {name: /*LANG*/"Theme", value: ''},
-    {name: /*LANG*/"White", value: '#fff'},
     {name: /*LANG*/"Green", value: '#0f0'},
     {name: /*LANG*/"Cyan", value: '#0ff'},
     {name: /*LANG*/"Yellow", value: '#ff0'},
     {name: /*LANG*/"Magenta", value: '#f0f'},
     {name: /*LANG*/"Red", value: '#f00'},
-    {name: /*LANG*/"Blue", value: '#00f'}
+    {name: /*LANG*/"Blue", value: '#00f'},
+    {name: /*LANG*/"White", value: '#fff'},
+    {name: /*LANG*/"Black", value: '#000'}
   ];
 
   function colourIndex() {
