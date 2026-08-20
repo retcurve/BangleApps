@@ -29,11 +29,14 @@ There is nothing to launch. Install it and it takes over when a message arrives.
 | `Repeats` | `3` | Times to scroll the message before giving up |
 | `Font size` | `2` | Doto font scale (3 is the largest that clears the icon) |
 | `Rotate` | `0°` | Screen rotation, in 90 degree steps |
-| `Colours` | `White` | Text/background preset |
+| `Colour` | `Theme` | Text colour. `Theme` follows the system theme foreground |
 | `Max bright` | `on` | Force maximum LCD brightness while scrolling |
 | `Don't dim` | `on` | Keep the backlight on while scrolling |
 
 These are stored in `messagescroll.json`.
+
+The background always matches the system theme background, so the scroll doesn't
+look out of place against your clock.
 
 In Quiet Mode the message is still shown, but the brightness and backlight are
 left alone and the watch does not buzz.

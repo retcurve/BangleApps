@@ -23,8 +23,7 @@ const settings = Object.assign({
   loops: 3,         // times to scroll the message before giving up
   fontSize: 2,      // Doto font scale
   rotate: 0,        // screen rotation, 0-3 quarter turns (as g.setRotation)
-  fg: '#fff',
-  bg: '#000'
+  fg: ''            // text colour; '' follows the system theme foreground
 }, require('Storage').readJSON(SETTINGS, true) || {});
 
 const FONT_HEIGHT = 40; // base height of the Doto font, see setFontDoto above
@@ -119,8 +118,9 @@ function start() {
   require("messages").buzz(msg.src);
   require("messages").stopBuzz();
 
-  // Static part of the screen, drawn once
-  g.setBgColor(settings.bg).clear();
+  // Static part of the screen, drawn once. The background always follows the
+  // system theme, so the scroll doesn't look out of place against the clock.
+  g.setBgColor(g.theme.bg).clear();
   g.setColor(require("messageicons").getColor(msg));
   g.drawImage(require("messageicons").getImage(msg),
     (g.getWidth() - ICON_SIZE) / 2, 0, {scale: 2});
@@ -128,7 +128,7 @@ function start() {
   // Scrolling text band, filling the screen below the icon
   g.setFontDoto(settings.fontSize);
   g.setFontAlign(-1, 0);
-  g.setColor(settings.fg);
+  g.setColor(settings.fg || g.theme.fg);
   textWidth = g.stringWidth(text); // cached: it never changes
   textY = (ICON_SIZE + g.getHeight()) / 2;
   const half = (FONT_HEIGHT * settings.fontSize) / 2 + 1;

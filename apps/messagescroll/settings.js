@@ -9,19 +9,15 @@
     loops: 3,
     fontSize: 2,
     rotate: 0,
-    fg: '#fff',
-    bg: '#000'
+    fg: ''
   };
 
   var settings = Object.assign({}, DEFAULTS, require('Storage').readJSON(FILE, true) || {});
-
-  function saveSettings() {
-    require('Storage').writeJSON(FILE, settings);
-  }
+  delete settings.bg; // background follows the system theme now; drop the old key
 
   function writeSettings(key, value) {
     settings[key] = value;
-    saveSettings();
+    require('Storage').writeJSON(FILE, settings);
   }
 
   /* Stored value is what g.setRotation() wants (0-3 quarter turns); only the
@@ -43,20 +39,22 @@
     return best; // nearest, so an old hand-edited speed still lands somewhere sane
   }
 
-  /* Colour presets rather than a full picker - the app only needs a fg/bg pair,
-  and picking two arbitrary colours on this screen is more trouble than it's worth. */
-  var THEMES = [
-    {name: /*LANG*/"White", fg: '#fff', bg: '#000'},
-    {name: /*LANG*/"Green", fg: '#0f0', bg: '#000'},
-    {name: /*LANG*/"Cyan", fg: '#0ff', bg: '#000'},
-    {name: /*LANG*/"Yellow", fg: '#ff0', bg: '#000'},
-    {name: /*LANG*/"Red", fg: '#f00', bg: '#000'},
-    {name: /*LANG*/"Inverted", fg: '#000', bg: '#fff'}
+  /* Text colour only - the background always follows the system theme. "Theme"
+  keeps the text readable whichever theme is set; the rest are B2-safe colours. */
+  var COLOURS = [
+    {name: /*LANG*/"Theme", value: ''},
+    {name: /*LANG*/"White", value: '#fff'},
+    {name: /*LANG*/"Green", value: '#0f0'},
+    {name: /*LANG*/"Cyan", value: '#0ff'},
+    {name: /*LANG*/"Yellow", value: '#ff0'},
+    {name: /*LANG*/"Magenta", value: '#f0f'},
+    {name: /*LANG*/"Red", value: '#f00'},
+    {name: /*LANG*/"Blue", value: '#00f'}
   ];
 
-  function themeIndex() {
-    for (var i = 0; i < THEMES.length; i++)
-      if (THEMES[i].fg == settings.fg && THEMES[i].bg == settings.bg) return i;
+  function colourIndex() {
+    for (var i = 0; i < COLOURS.length; i++)
+      if (COLOURS[i].value == settings.fg) return i;
     return 0;
   }
 
@@ -86,15 +84,11 @@
       format: v => ROTATIONS[v] + "\xB0",
       onchange: v => writeSettings("rotate", v)
     },
-    /*LANG*/'Colours': {
-      value: themeIndex(),
-      min: 0, max: THEMES.length - 1, step: 1, wrap: true,
-      format: v => THEMES[v].name,
-      onchange: v => { // both colours change together, so save once
-        settings.fg = THEMES[v].fg;
-        settings.bg = THEMES[v].bg;
-        saveSettings();
-      }
+    /*LANG*/'Colour': {
+      value: colourIndex(),
+      min: 0, max: COLOURS.length - 1, step: 1, wrap: true,
+      format: v => COLOURS[v].name,
+      onchange: v => writeSettings("fg", COLOURS[v].value)
     },
     /*LANG*/'Max bright': {
       value: !!settings.maxBright,
