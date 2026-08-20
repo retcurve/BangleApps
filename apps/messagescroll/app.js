@@ -32,7 +32,8 @@ const BODY_CHARS = 60;  // how much of the message body to show
 const FRAME_MS = 20;    // target frame interval
 const IDLE_MS = 5;      // always yield at least this long, so BLE/buzz aren't starved
 
-const quiet = (require('Storage').readJSON('setting.json', 1) || {}).quiet;
+const sysSettings = require('Storage').readJSON('setting.json', 1) || {};
+const quiet = sysSettings.quiet;
 
 /* The boot handler saved the message immediately before loading us, so it is
 the newest entry in the store. Skip music/nav in case one landed in between. */
@@ -43,6 +44,7 @@ const msg = require("messages").getMessages().find(
 let text, textWidth, textY, bandY1, bandY2, startX, pxPerMs;
 let t0, loopsDone = 0;
 let scrollTimeout, lockHandler, dismissWatch;
+let origBacklightTimeout; // undefined = we never touched it
 
 function buildText(m) {
   let t = "";
@@ -66,9 +68,22 @@ function exitScroll(openGui) {
     dismissWatch = undefined;
   }
   require("messages").stopBuzz(); // otherwise repeat buzzes outlive the scroll
-  // No need to undo setRotation/setOptions/setLCDBrightness - load() resets them.
+  restoreDisplay();
   if (openGui && require("Storage").read("messagegui")) require("messages").openGUI(msg);
   else Bangle.load();
+}
+
+/* Put the display back the way we found it. This can't be left to load(): with
+Fast Loading installed Bangle.load() doesn't re-run .boot0 at all, and even a
+full load only restores rotation when the *system* rotate setting is non-zero
+(apps/boot/bootupdate.js), so our rotation would leak into the clock. */
+function restoreDisplay() {
+  const rot = sysSettings.rotate || 0;
+  g.setRotation(rot & 3, rot >> 2); // same decoding as .boot0 uses
+  if (origBacklightTimeout !== undefined)
+    Bangle.setOptions({backlightTimeout: origBacklightTimeout});
+  if (settings.maxBright && !quiet)
+    Bangle.setLCDBrightness(sysSettings.brightness === undefined ? 1 : sysSettings.brightness);
 }
 
 /* Draw one frame. Only the text band is cleared and redrawn - the icon above it
@@ -104,6 +119,7 @@ function start() {
   dismissWatch = setWatch(() => exitScroll(true), BTN1, {edge: "falling", debounce: 50});
 
   if (settings.doNotDim) {
+    origBacklightTimeout = Bangle.getOptions().backlightTimeout;
     Bangle.setOptions({backlightTimeout: 0});
     if (!quiet) Bangle.setBacklight(1);
   }
