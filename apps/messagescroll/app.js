@@ -43,7 +43,7 @@ const msg = require("messages").getMessages().find(
 
 let text, textWidth, textY, bandY1, bandY2, startX, pxPerMs;
 let t0, loopsDone = 0;
-let scrollTimeout, lockHandler;
+let scrollTimeout, lockHandler, dismissWatch;
 
 function buildText(m) {
   let t = "";
@@ -61,6 +61,10 @@ function exitScroll(openGui) {
   if (lockHandler) {
     Bangle.removeListener('lock', lockHandler);
     lockHandler = undefined;
+  }
+  if (dismissWatch !== undefined) {
+    clearWatch(dismissWatch);
+    dismissWatch = undefined;
   }
   require("messages").stopBuzz(); // otherwise repeat buzzes outlive the scroll
   // No need to undo setRotation/setOptions/setLCDBrightness - load() resets them.
@@ -93,10 +97,12 @@ function start() {
   text = buildText(msg);
   pxPerMs = settings.speed / 1000;
 
-  /* Unlocking hands over to the messages GUI. We are only ever started while
-  locked, so a button press unlocks the watch and arrives here too. */
+  /* Runs whether the watch is locked or not, so give both a way to dismiss
+  into the messages GUI: unlocking (if we started locked), or the back button
+  (if we started unlocked and so will see no lock transition at all). */
   lockHandler = locked => { if (!locked) exitScroll(true); };
   Bangle.on('lock', lockHandler);
+  dismissWatch = setWatch(() => exitScroll(true), BTN1, {edge: "falling", debounce: 50});
 
   if (settings.doNotDim) {
     Bangle.setOptions({backlightTimeout: 0});

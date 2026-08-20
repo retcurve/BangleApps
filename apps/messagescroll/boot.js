@@ -1,4 +1,4 @@
-/* Scroll new messages full-screen when the watch is locked on a clock face.
+/* Scroll new messages full-screen on the clock face, locked or not.
 
 Named *.0.boot.js so this runs before messagegui.boot.js and gets first refusal
 on the message (see bthrm.0.boot.js / messagesoverlay.0.boot.js for the same
@@ -9,8 +9,7 @@ Bangle.on("message", function(type, msg) {
   if (!(type == "text" || type == "call")) return;
   if (type == "text" && msg.id == "nav") return;
   if (msg.t != "add" || !msg.new) return;
-  if (!Bangle.isLocked()) return; // unlocked - the normal messages UI is more useful
-  if (!Bangle.CLOCK) return;      // in an app - don't hijack it, just let it buzz as usual
+  if (!Bangle.CLOCK) return; // in an app - don't hijack it, just let it buzz as usual
 
   /* Save before claiming the message. messages.write() deletes `handled` from
   the objects it writes, and ours is one of them, so setting it first would let
