@@ -9,7 +9,8 @@
     loops: 3,
     fontSize: 2,
     rotate: 0,
-    fg: ''
+    fg: '',
+    countdown: true
   };
 
   var settings = Object.assign({}, DEFAULTS, require('Storage').readJSON(FILE, true) || {});
@@ -106,6 +107,10 @@
     /*LANG*/"Don't dim": {
       value: !!settings.doNotDim,
       onchange: v => writeSettings("doNotDim", v)
+    },
+    /*LANG*/"Countdown": {
+      value: !!settings.countdown,
+      onchange: v => writeSettings("countdown", v)
     }
   });
 })

@@ -18,7 +18,8 @@ const settings = Object.assign({
   loops: 3,         // times to scroll the message
   fontSize: 2,      // Doto font scale
   rotate: 0,        // screen rotation, 0-3 quarter turns (as g.setRotation)
-  fg: ''            // text colour; '' follows the system theme foreground
+  fg: '',           // text colour; '' follows the system theme foreground
+  countdown: true   // show a 3-2-1 countdown before scrolling starts
 }, require('Storage').readJSON(SETTINGS, true) || {});
 
 const FONT_HEIGHT = 40; // base height of the Doto font
@@ -39,6 +40,7 @@ let text, textWidth, textY, bandY1, bandY2, startX, pxPerMs;
 let t0, loopsDone = 0;
 let scrollTimeout, lockHandler, dismissWatch;
 let origBacklightTimeout;
+let countdownInterval, countdownNum;
 
 function buildText(m) {
   let t = "";
@@ -50,6 +52,8 @@ function buildText(m) {
 function exitScroll(openGui) {
   if (scrollTimeout) clearTimeout(scrollTimeout);
   scrollTimeout = undefined;
+  if (countdownInterval) clearInterval(countdownInterval);
+  countdownInterval = undefined;
   if (lockHandler) {
     Bangle.removeListener('lock', lockHandler);
     lockHandler = undefined;
@@ -128,6 +132,33 @@ function start() {
   bandY2 = Math.min(g.getHeight() - 1, textY + half);
   g.setClipRect(0, bandY1, g.getWidth() - 1, bandY2);
 
+  if (settings.countdown) {
+    g.setFontAlign(0, 0);
+    countdownNum = 3;
+    drawCountdown();
+    countdownInterval = setInterval(() => {
+      if (countdownNum === 0) {
+        clearInterval(countdownInterval);
+        countdownInterval = undefined;
+        g.setFontAlign(-1, 0);
+        beginScroll();
+      } else {
+        drawCountdown();
+      }
+    }, 1000);
+  } else {
+    beginScroll();
+  }
+}
+
+/* Show one countdown digit, then step it down for the next call. */
+function drawCountdown() {
+  g.clearRect(0, bandY1, g.getWidth() - 1, bandY2);
+  g.drawString(countdownNum, g.getWidth() / 2, textY);
+  countdownNum--;
+}
+
+function beginScroll() {
   startX = g.getWidth(); // start the text just off the right edge
   t0 = Date.now();
   frame();
