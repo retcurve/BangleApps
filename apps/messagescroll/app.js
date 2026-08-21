@@ -19,7 +19,7 @@ const settings = Object.assign({
   fontSize: 2,      // Doto font scale
   rotate: 0,        // screen rotation, 0-3 quarter turns (as g.setRotation)
   fg: '',           // text colour; '' follows the system theme foreground
-  countdown: true   // show a 3-2-1 countdown before scrolling starts
+  countdown: false   // show a 3-2-1 countdown before scrolling starts
 }, require('Storage').readJSON(SETTINGS, true) || {});
 
 const FONT_HEIGHT = 40; // base height of the Doto font

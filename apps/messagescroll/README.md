@@ -26,6 +26,7 @@ There is nothing to launch. Install it and it takes over when a message arrives.
 | Colour | `Theme` | Text colour. `Theme` follows the system theme foreground |
 | Max bright | `on` | Force maximum LCD brightness while scrolling |
 | Don't dim | `on` | Keep the backlight on while scrolling |
+| Countdown | `off` | Show a 3-2-1 countdown before displaying the message |
 
 ## Author
 

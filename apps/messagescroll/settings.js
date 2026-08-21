@@ -10,7 +10,7 @@
     fontSize: 2,
     rotate: 0,
     fg: '',
-    countdown: true
+    countdown: false
   };
 
   var settings = Object.assign({}, DEFAULTS, require('Storage').readJSON(FILE, true) || {});
