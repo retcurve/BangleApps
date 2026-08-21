@@ -42,11 +42,8 @@ let origBacklightTimeout;
 
 function buildText(m) {
   let t = "";
-  if (m.sender) t += m.sender + " ";
-  if (m.title) t += m.title + " ";
-  if (m.subject) t += m.subject + " ";
+  if (m.title) t += m.title + ": ";
   if (m.body) t += (m.body.length > BODY_CHARS ? m.body.substr(0, BODY_CHARS) + "..." : m.body) + " ";
-  if (m.tel) t += m.tel + " ";
   return t.replace(/[\n\r]+/g, " ");
 }
 
