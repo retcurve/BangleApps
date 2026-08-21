@@ -3,6 +3,8 @@
 Scrolls new messages across the whole screen in a large font, so they can be read
 at arm's length.
 
+![Image](screenshot.gif "screenshot")
+
 ## Usage
 
 There is nothing to launch. Install it and it takes over when a message arrives.
