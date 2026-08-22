@@ -2,3 +2,4 @@
 0.02: Hold off the auto-lock so the scroll isn't cut short, ignore the
       tap/button that unlocked the watch, and centre the text on the glyphs
       rather than on the font box
+0.03: Space out the : in the time and the / in the date
