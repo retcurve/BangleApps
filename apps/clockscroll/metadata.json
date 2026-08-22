@@ -1,0 +1,20 @@
+{
+  "id": "clockscroll",
+  "name": "Clock Scroll",
+  "shortName": "Clock Scroll",
+  "version": "0.01",
+  "description": "Scrolls the current time across the whole screen in a large font when you unlock the watch on the clock face, so it can be read at arm's length",
+  "author": "retcurve",
+  "icon": "app.png",
+  "type": "app",
+  "tags": "tool,clock",
+  "supports": ["BANGLEJS2"],
+  "readme": "README.md",
+  "storage": [
+    {"name":"clockscroll.app.js","url":"app.js"},
+    {"name":"clockscroll.boot.js","url":"boot.js"},
+    {"name":"clockscroll.settings.js","url":"settings.js"},
+    {"name":"clockscroll.img","url":"app-icon.js","evaluate":true}
+  ],
+  "data": [{"name":"clockscroll.json"}]
+}
