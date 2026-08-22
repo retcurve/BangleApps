@@ -37,7 +37,7 @@ on its own.
 | Don't dim | `on` | Keep the backlight on while scrolling |
 
 `Show time` and `Show date` can't both be turned off - there'd be nothing left
-to scroll - so the watch buzzes and keeps the old setting if you try.
+to scroll - so you get an alert and the old setting is kept if you try.
 
 The text is rebuilt at the start of every repeat, so a long scroll never shows a
 stale minute. 12 or 24 hour format follows the system setting.

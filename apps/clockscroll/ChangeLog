@@ -6,3 +6,4 @@
 0.04: Revert 0.03 - the spacing was too wide
 0.05: Drop the countdown, add a Show time setting, and keep at least one of
       Show time / Show date turned on
+0.06: Explain the Show time / Show date rule with an alert instead of a buzz

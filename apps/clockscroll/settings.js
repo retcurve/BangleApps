@@ -23,13 +23,12 @@
   }
 
   /* There'd be nothing left to scroll with both of these off, so refuse the
-  change: buzz, leave the stored settings alone, and redraw the menu so it
+  change: say why, leave the stored settings alone, and redraw the menu so it
   shows the value that's actually saved. */
   function writeContent(key, value) {
     var other = (key == "showTime") ? settings.showDate : settings.showTime !== false;
     if (!value && !other) {
-      Bangle.buzz(50);
-      showMain();
+      E.showAlert(/*LANG*/"Time or date\nmust be on", /*LANG*/"Clock Scroll").then(showMain);
       return;
     }
     writeSettings(key, value);
