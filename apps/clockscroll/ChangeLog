@@ -7,3 +7,5 @@
 0.05: Drop the countdown, add a Show time setting, and keep at least one of
       Show time / Show date turned on
 0.06: Explain the Show time / Show date rule with an alert instead of a buzz
+0.07: Replace Enabled with Run (On unlock / On button / Off), and only warn
+      about Show time / Show date on the way out of the settings

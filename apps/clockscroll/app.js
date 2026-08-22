@@ -12,6 +12,7 @@ Graphics.prototype.setFontDoto = function(scale) {
 // Load settings
 const SETTINGS = 'clockscroll.json';
 const settings = Object.assign({
+  run: 'unlock',    // 'unlock', 'button' or 'off' - see boot.js
   maxBright: true,  // force max LCD brightness while scrolling
   doNotDim: true,   // keep the backlight on while scrolling
   speed: 300,       // scroll speed, in pixels per second
@@ -73,7 +74,7 @@ function buildText() {
   return (t || time) + " "; // never scroll a blank screen
 }
 
-function exitScroll() {
+function exitScroll(toLauncher) {
   if (scrollTimeout) clearTimeout(scrollTimeout);
   scrollTimeout = undefined;
   if (lockHandler) {
@@ -89,7 +90,8 @@ function exitScroll() {
     dismissWatch = undefined;
   }
   restoreDisplay();
-  Bangle.load(); // back to the clock we interrupted
+  if (toLauncher) Bangle.showLauncher();
+  else Bangle.load(); // back to the clock we interrupted
 }
 
 /* Put the display back the way we found it. */
@@ -112,7 +114,7 @@ function frame() {
   g.drawString(text, x, textY);
 
   if (x < -textWidth) { // scrolled off the left edge
-    if (++loopsDone >= settings.loops) return exitScroll();
+    if (++loopsDone >= settings.loops) return exitScroll(false);
     beginScroll();
     return;
   }
@@ -123,17 +125,27 @@ function frame() {
 function start() {
   pxPerMs = settings.speed / 1000;
 
-  /* Locking the watch, a tap, or the back button all send us straight back to
-  the clock - but not for the first moment: whatever the user did to unlock the
-  watch (a tap, or the button whose release lands after we load) would otherwise
-  dismiss us before anything is readable. */
+  /* Locking the watch, a tap, or the button all cut the scroll short - but not
+  for the first moment: whatever the user did to get here (a tap, or the button
+  whose release lands after we load) would otherwise dismiss us before anything
+  is readable. */
   dismissAfter = Date.now() + DISMISS_IGNORE_MS;
-  const dismiss = () => { if (Date.now() > dismissAfter) exitScroll(); };
-  lockHandler = locked => { if (locked) dismiss(); };
+  const dismiss = toLauncher => {
+    if (Date.now() > dismissAfter) exitScroll(toLauncher);
+  };
+  lockHandler = locked => { if (locked) dismiss(false); };
   Bangle.on('lock', lockHandler);
-  touchHandler = dismiss;
+  touchHandler = () => dismiss(false);
   Bangle.on('touch', touchHandler);
-  dismissWatch = setWatch(dismiss, BTN1, {edge: "falling", debounce: 50});
+  /* In button mode the button brought us here, so a second press carries on to
+  where it would have gone: the launcher. Otherwise it just puts the clock back. */
+  const btnToLauncher = settings.run == 'button';
+  dismissWatch = setWatch(() => dismiss(btnToLauncher), BTN1,
+    {edge: "falling", debounce: 50});
+
+  /* We're an app now, not the clock, so the boot handler's showLauncher
+  override falls through to the real launcher. */
+  Bangle.CLOCK = 0;
 
   /* Hold off the auto-lock, which would otherwise cut the scroll short part way
   through the repeats. Restored on the way out. */

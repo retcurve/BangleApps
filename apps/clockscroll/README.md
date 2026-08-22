@@ -5,12 +5,16 @@ read at arm's length.
 
 ## Usage
 
-Unlock the watch while the clock face is showing and the time scrolls across the
-screen. After it has scrolled the set number of repeats it returns to the clock
-on its own.
+With `Run` set to `On unlock`, unlocking the watch while the clock face is
+showing scrolls the time across the screen. With `On button`, pressing the
+button on the clock does it instead, locked or not. After the set number of
+repeats it returns to the clock on its own.
 
-* **Tap the screen**, **press the button**, or **lock the watch** to go back to
-  the clock straight away.
+* **Tap the screen** or **lock the watch** to go back to the clock straight
+  away.
+* **Press the button** to go back to the clock too - except in `On button`
+  mode, where a second press carries on to the launcher, which is where that
+  press would have taken you.
 * The watch is kept awake while the time is scrolling, so the auto-lock can't
   cut the repeats short. Your normal lock and backlight timeouts come back
   afterwards.
@@ -25,7 +29,7 @@ on its own.
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
-| Enabled | `on` | Scroll the time on unlock. Turn off to keep the app but stop it taking over |
+| Run | `On unlock` | What starts the scroll: `On unlock`, `On button`, or `Off` to keep the app installed but stop it taking over |
 | Speed | `Medium` | Scrolling speed. Slow, Medium, or Fast |
 | Repeats | `3` | Number of times to scroll the time |
 | Font size | `Medium` | Small, Medium, or Large |
@@ -36,8 +40,9 @@ on its own.
 | Max bright | `on` | Force maximum LCD brightness while scrolling |
 | Don't dim | `on` | Keep the backlight on while scrolling |
 
-`Show time` and `Show date` can't both be turned off - there'd be nothing left
-to scroll - so you get an alert and the old setting is kept if you try.
+`Show time` and `Show date` can both be off while you're in the menu, but
+leaving it that way would mean nothing to scroll, so `< Back` shows an alert
+and stays put until you turn one of them on.
 
 The text is rebuilt at the start of every repeat, so a long scroll never shows a
 stale minute. 12 or 24 hour format follows the system setting.

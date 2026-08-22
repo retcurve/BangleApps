@@ -3,7 +3,7 @@
 
   // Keep in step with the defaults at the top of app.js
   var DEFAULTS = {
-    enabled: true,
+    run: 'unlock',
     maxBright: true,
     doNotDim: true,
     speed: 300,
@@ -15,23 +15,37 @@
     showDate: false
   };
 
-  var settings = Object.assign({}, DEFAULTS, require('Storage').readJSON(FILE, true) || {});
+  var saved = require('Storage').readJSON(FILE, true) || {};
+  // enabled was the pre-0.07 setting, and only ever meant "on unlock" or "off"
+  if (saved.run === undefined && saved.enabled === false) saved.run = 'off';
+  var settings = Object.assign({}, DEFAULTS, saved);
 
   function writeSettings(key, value) {
     settings[key] = value;
     require('Storage').writeJSON(FILE, settings);
   }
 
-  /* There'd be nothing left to scroll with both of these off, so refuse the
-  change: say why, leave the stored settings alone, and redraw the menu so it
-  shows the value that's actually saved. */
-  function writeContent(key, value) {
-    var other = (key == "showTime") ? settings.showDate : settings.showTime !== false;
-    if (!value && !other) {
+  /* Both content settings can be off while the menu is open, but there'd be
+  nothing left to scroll, so say so rather than letting the user walk away
+  from it. */
+  function exitMenu() {
+    if (settings.showTime === false && !settings.showDate) {
       E.showAlert(/*LANG*/"Time or date\nmust be on", /*LANG*/"Clock Scroll").then(showMain);
       return;
     }
-    writeSettings(key, value);
+    back();
+  }
+
+  var RUN_MODES = [
+    {name: /*LANG*/"On unlock", value: 'unlock'},
+    {name: /*LANG*/"On button", value: 'button'},
+    {name: /*LANG*/"Off", value: 'off'}
+  ];
+
+  function runIndex() {
+    for (var i = 0; i < RUN_MODES.length; i++)
+      if (RUN_MODES[i].value == settings.run) return i;
+    return 0; // On unlock, matching the default
   }
 
   var ROTATIONS = [0, 90, 180, 270];
@@ -85,10 +99,12 @@
   function showMain() {
     E.showMenu({
       "": {"title": /*LANG*/"Clock Scroll"},
-      "< Back": back,
-      /*LANG*/'Enabled': {
-        value: settings.enabled !== false,
-        onchange: v => writeSettings("enabled", v)
+      "< Back": exitMenu,
+      /*LANG*/'Run': {
+        value: runIndex(),
+        min: 0, max: RUN_MODES.length - 1, step: 1, wrap: true,
+        format: v => RUN_MODES[v].name,
+        onchange: v => writeSettings("run", RUN_MODES[v].value)
       },
       /*LANG*/'Speed': {
         value: speedIndex(),
@@ -121,11 +137,11 @@
       },
       /*LANG*/'Show time': {
         value: settings.showTime !== false,
-        onchange: v => writeContent("showTime", v)
+        onchange: v => writeSettings("showTime", v)
       },
       /*LANG*/'Show date': {
         value: !!settings.showDate,
-        onchange: v => writeContent("showDate", v)
+        onchange: v => writeSettings("showDate", v)
       },
       /*LANG*/'Max bright': {
         value: !!settings.maxBright,
