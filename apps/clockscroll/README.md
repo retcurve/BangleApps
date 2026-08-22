@@ -6,15 +6,17 @@ read at arm's length.
 ## Usage
 
 With `Run` set to `On unlock`, unlocking the watch while the clock face is
-showing scrolls the time across the screen. With `On button`, pressing the
-button on the clock does it instead, locked or not. After the set number of
-repeats it returns to the clock on its own.
+showing scrolls the time across the screen. `On button` adds the button to
+that: pressing it on the clock scrolls the time too, whether the watch is
+locked or not. After the set number of repeats it returns to the clock on its
+own.
 
 * **Tap the screen** or **lock the watch** to go back to the clock straight
   away.
-* **Press the button** to go back to the clock too - except in `On button`
-  mode, where a second press carries on to the launcher, which is where that
-  press would have taken you.
+* **Press the button** to go back to the clock too - except when the button
+  is what started the scroll, in which case a second press carries on to the
+  launcher, which is where that press would have taken you. A scroll started by
+  unlocking always goes back to the clock, even with `Run` set to `On button`.
 * The watch is kept awake while the time is scrolling, so the auto-lock can't
   cut the repeats short. Your normal lock and backlight timeouts come back
   afterwards.
@@ -29,7 +31,7 @@ repeats it returns to the clock on its own.
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
-| Run | `On unlock` | What starts the scroll: `On unlock`, `On button`, or `Off` to keep the app installed but stop it taking over |
+| Run | `On unlock` | What starts the scroll: `On unlock`, `On button` (the button as well as unlocking), or `Off` to keep the app installed but stop it taking over |
 | Speed | `Medium` | Scrolling speed. Slow, Medium, or Fast |
 | Repeats | `3` | Number of times to scroll the time |
 | Font size | `Medium` | Small, Medium, or Large |
