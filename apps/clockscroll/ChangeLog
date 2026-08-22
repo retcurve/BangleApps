@@ -12,3 +12,4 @@
 0.08: On button mode keeps the unlock trigger as well, and an unlock-started
       scroll still exits to the clock when the button is pressed
 0.09: With Run on On button, the button always exits to the launcher
+0.10: The button exits to the launcher in every run mode

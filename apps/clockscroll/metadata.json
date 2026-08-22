@@ -2,7 +2,7 @@
   "id": "clockscroll",
   "name": "Clock Scroll",
   "shortName": "Clock Scroll",
-  "version": "0.09",
+  "version": "0.10",
   "description": "Scrolls the current time across the whole screen in a large font when you unlock the watch on the clock face, so it can be read at arm's length",
   "author": "retcurve",
   "icon": "app.png",

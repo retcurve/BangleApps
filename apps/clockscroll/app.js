@@ -137,11 +137,9 @@ function start() {
   Bangle.on('lock', lockHandler);
   touchHandler = () => dismiss(false);
   Bangle.on('touch', touchHandler);
-  /* With Run on On button the button owns the scroll, so a press carries on to
-  where it would have gone from the clock: the launcher. On unlock, it just puts
-  the clock back. */
-  const btnToLauncher = settings.run == 'button';
-  dismissWatch = setWatch(() => dismiss(btnToLauncher), BTN1,
+  /* The button carries on to where it would have gone from the clock: the
+  launcher. Whichever way the scroll was started. */
+  dismissWatch = setWatch(() => dismiss(true), BTN1,
     {edge: "falling", debounce: 50});
 
   /* We're an app now, not the clock, so the boot handler's showLauncher
