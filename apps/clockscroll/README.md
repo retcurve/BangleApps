@@ -11,6 +11,9 @@ on its own.
 
 * **Tap the screen**, **press the button**, or **lock the watch** to go back to
   the clock straight away.
+* The watch is kept awake while the time is scrolling, so the auto-lock can't
+  cut the repeats short. Your normal lock and backlight timeouts come back
+  afterwards.
 * If you unlock the watch while an app (rather than a clock) is running, nothing
   happens - the app is left alone.
 * Launching `Clock Scroll` from the launcher scrolls the time as well, which is

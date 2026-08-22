@@ -26,15 +26,37 @@ const settings = Object.assign({
 const FONT_HEIGHT = 40; // base height of the Doto font
 const FRAME_MS = 20;    // target frame interval
 const IDLE_MS = 5;      // always yield at least this long, so BLE isn't starved
-const TOUCH_IGNORE_MS = 500; // ignore taps for this long after starting
+const DISMISS_IGNORE_MS = 750; // ignore taps/button for this long after starting
 
 const sysSettings = require('Storage').readJSON('setting.json', 1) || {};
 
 let text, textWidth, textY, bandY1, bandY2, startX, pxPerMs;
 let t0, loopsDone = 0;
 let scrollTimeout, lockHandler, touchHandler, dismissWatch;
-let origBacklightTimeout;
+let dismissAfter = 0;
+let inkOffset = 0; // pixels (at scale 1) the glyphs sit off centre in the font box
+let origBacklightTimeout, origLockTimeout;
 let countdownInterval, countdownNum;
+
+/* The Doto glyphs don't fill their 40px font box evenly, so centring on the
+font box alone leaves the digits looking a pixel or two off. Measure where the
+ink actually sits, once, in a small offscreen buffer. */
+function measureInk() {
+  const W = 48, H = FONT_HEIGHT + 2;
+  const gg = Graphics.createArrayBuffer(W, H, 1, {msb: true});
+  gg.setFontDoto(1);
+  gg.setFontAlign(-1, -1);
+  gg.drawString("0123456789:", 0, 1); // font box is rows 1..FONT_HEIGHT
+  let top = -1, bottom = -1;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      if (gg.getPixel(x, y)) { if (top < 0) top = y; bottom = y; break; }
+    }
+  }
+  if (top < 0) return 0; // nothing drawn - leave the box centring alone
+  // How far the box centre has to move for the ink centre to land on it
+  return 1 + FONT_HEIGHT / 2 - (top + bottom) / 2;
+}
 
 /* The time is rebuilt at the start of every pass, so a long scroll never shows
 a stale minute. */
@@ -78,6 +100,8 @@ function restoreDisplay() {
   g.setRotation(rot & 3, rot >> 2); // same decoding as .boot0 uses
   if (origBacklightTimeout !== undefined)
     Bangle.setOptions({backlightTimeout: origBacklightTimeout});
+  if (origLockTimeout !== undefined)
+    Bangle.setOptions({lockTimeout: origLockTimeout});
   if (settings.maxBright)
     Bangle.setLCDBrightness(sysSettings.brightness === undefined ? 1 : sysSettings.brightness);
 }
@@ -102,15 +126,21 @@ function start() {
   pxPerMs = settings.speed / 1000;
 
   /* Locking the watch, a tap, or the back button all send us straight back to
-  the clock. */
-  lockHandler = locked => { if (locked) exitScroll(); };
+  the clock - but not for the first moment: whatever the user did to unlock the
+  watch (a tap, or the button whose release lands after we load) would otherwise
+  dismiss us before anything is readable. */
+  dismissAfter = Date.now() + DISMISS_IGNORE_MS;
+  const dismiss = () => { if (Date.now() > dismissAfter) exitScroll(); };
+  lockHandler = locked => { if (locked) dismiss(); };
   Bangle.on('lock', lockHandler);
-  /* Ignore taps for a moment: the tap that woke the watch can arrive just
-  after we load, and would dismiss us before anything is readable. */
-  const touchIgnoreUntil = Date.now() + TOUCH_IGNORE_MS;
-  touchHandler = () => { if (Date.now() > touchIgnoreUntil) exitScroll(); };
+  touchHandler = dismiss;
   Bangle.on('touch', touchHandler);
-  dismissWatch = setWatch(exitScroll, BTN1, {edge: "falling", debounce: 50});
+  dismissWatch = setWatch(dismiss, BTN1, {edge: "falling", debounce: 50});
+
+  /* Hold off the auto-lock, which would otherwise cut the scroll short part way
+  through the repeats. Restored on the way out. */
+  origLockTimeout = Bangle.getOptions().lockTimeout;
+  Bangle.setOptions({lockTimeout: 0});
 
   if (settings.doNotDim) {
     origBacklightTimeout = Bangle.getOptions().backlightTimeout;
@@ -126,7 +156,8 @@ function start() {
   g.setFontDoto(settings.fontSize);
   g.setFontAlign(-1, 0);
   g.setColor(settings.fg || g.theme.fg);
-  textY = g.getHeight() / 2;
+  inkOffset = measureInk();
+  textY = g.getHeight() / 2 + inkOffset * settings.fontSize;
   const half = (FONT_HEIGHT * settings.fontSize) / 2 + 1;
   bandY1 = Math.max(0, textY - half);
   bandY2 = Math.min(g.getHeight() - 1, textY + half);
