@@ -13,10 +13,10 @@ own.
 
 * **Tap the screen** or **lock the watch** to go back to the clock straight
   away.
-* **Press the button** to go back to the clock too - except when the button
-  is what started the scroll, in which case a second press carries on to the
-  launcher, which is where that press would have taken you. A scroll started by
-  unlocking always goes back to the clock, even with `Run` set to `On button`.
+* **Press the button** to go back to the clock too - except with `Run` set to
+  `On button`, where it carries on to the launcher instead, which is where that
+  press would have taken you from the clock. That goes for a scroll the button
+  started and one that unlocking started alike.
 * The watch is kept awake while the time is scrolling, so the auto-lock can't
   cut the repeats short. Your normal lock and backlight timeouts come back
   afterwards.

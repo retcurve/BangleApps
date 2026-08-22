@@ -137,10 +137,10 @@ function start() {
   Bangle.on('lock', lockHandler);
   touchHandler = () => dismiss(false);
   Bangle.on('touch', touchHandler);
-  /* Only if the button brought us here does a second press carry on to where
-  that press would have gone: the launcher. Started any other way - including by
-  unlocking while the Run setting is On button - it just puts the clock back. */
-  const btnToLauncher = global.CLOCKSCROLL_BUTTON === true;
+  /* With Run on On button the button owns the scroll, so a press carries on to
+  where it would have gone from the clock: the launcher. On unlock, it just puts
+  the clock back. */
+  const btnToLauncher = settings.run == 'button';
   dismissWatch = setWatch(() => dismiss(btnToLauncher), BTN1,
     {edge: "falling", debounce: 50});
 

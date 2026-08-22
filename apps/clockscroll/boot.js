@@ -22,7 +22,7 @@ Wrapped in a function so the local names don't leak into the shared .boot0. */
     launcher, by which point Bangle.CLOCK is clear. */
     var launcher = Bangle.showLauncher;
     Bangle.showLauncher = function() {
-      if (Bangle.CLOCK) load("clockscroll.btn.js");
+      if (Bangle.CLOCK) load("clockscroll.app.js");
       else launcher();
     };
   }
