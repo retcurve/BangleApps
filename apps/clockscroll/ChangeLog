@@ -4,3 +4,5 @@
       rather than on the font box
 0.03: Space out the : in the time and the / in the date
 0.04: Revert 0.03 - the spacing was too wide
+0.05: Drop the countdown, add a Show time setting, and keep at least one of
+      Show time / Show date turned on

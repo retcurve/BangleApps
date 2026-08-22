@@ -19,8 +19,8 @@ const settings = Object.assign({
   fontSize: 3,      // Doto font scale
   rotate: 0,        // screen rotation, 0-3 quarter turns (as g.setRotation)
   fg: '',           // text colour; '' follows the system theme foreground
-  showDate: false,  // scroll the date after the time
-  countdown: false  // show a 3-2-1 countdown before scrolling starts
+  showTime: true,   // scroll the time
+  showDate: false   // scroll the date (after the time, if both are on)
 }, require('Storage').readJSON(SETTINGS, true) || {});
 
 const FONT_HEIGHT = 40; // base height of the Doto font
@@ -36,7 +36,6 @@ let scrollTimeout, lockHandler, touchHandler, dismissWatch;
 let dismissAfter = 0;
 let inkOffset = 0; // pixels (at scale 1) the glyphs sit off centre in the font box
 let origBacklightTimeout, origLockTimeout;
-let countdownInterval, countdownNum;
 
 /* The Doto glyphs don't fill their 40px font box evenly, so centring on the
 font box alone leaves the digits looking a pixel or two off. Measure where the
@@ -68,16 +67,15 @@ function buildText() {
     h = h % 12;
     if (h === 0) h = 12;
   }
-  let t = h + ":" + ("0" + d.getMinutes()).substr(-2) + suffix;
-  if (settings.showDate) t += " " + require("locale").date(d, 1);
-  return t + " ";
+  const time = h + ":" + ("0" + d.getMinutes()).substr(-2) + suffix;
+  let t = (settings.showTime !== false) ? time : "";
+  if (settings.showDate) t += (t ? " " : "") + require("locale").date(d, 1);
+  return (t || time) + " "; // never scroll a blank screen
 }
 
 function exitScroll() {
   if (scrollTimeout) clearTimeout(scrollTimeout);
   scrollTimeout = undefined;
-  if (countdownInterval) clearInterval(countdownInterval);
-  countdownInterval = undefined;
   if (lockHandler) {
     Bangle.removeListener('lock', lockHandler);
     lockHandler = undefined;
@@ -163,30 +161,7 @@ function start() {
   bandY2 = Math.min(g.getHeight() - 1, textY + half);
   g.setClipRect(0, bandY1, g.getWidth() - 1, bandY2);
 
-  if (settings.countdown) {
-    g.setFontAlign(0, 0);
-    countdownNum = 3;
-    drawCountdown();
-    countdownInterval = setInterval(() => {
-      if (countdownNum === 0) {
-        clearInterval(countdownInterval);
-        countdownInterval = undefined;
-        g.setFontAlign(-1, 0);
-        beginScroll();
-      } else {
-        drawCountdown();
-      }
-    }, 1000);
-  } else {
-    beginScroll();
-  }
-}
-
-/* Show one countdown digit, then step it down for the next call. */
-function drawCountdown() {
-  g.clearRect(0, bandY1, g.getWidth() - 1, bandY2);
-  g.drawString(countdownNum, g.getWidth() / 2, textY);
-  countdownNum--;
+  beginScroll();
 }
 
 function beginScroll() {

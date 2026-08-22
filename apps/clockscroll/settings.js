@@ -11,8 +11,8 @@
     fontSize: 3,
     rotate: 0,
     fg: '',
-    showDate: false,
-    countdown: false
+    showTime: true,
+    showDate: false
   };
 
   var settings = Object.assign({}, DEFAULTS, require('Storage').readJSON(FILE, true) || {});
@@ -20,6 +20,19 @@
   function writeSettings(key, value) {
     settings[key] = value;
     require('Storage').writeJSON(FILE, settings);
+  }
+
+  /* There'd be nothing left to scroll with both of these off, so refuse the
+  change: buzz, leave the stored settings alone, and redraw the menu so it
+  shows the value that's actually saved. */
+  function writeContent(key, value) {
+    var other = (key == "showTime") ? settings.showDate : settings.showTime !== false;
+    if (!value && !other) {
+      Bangle.buzz(50);
+      showMain();
+      return;
+    }
+    writeSettings(key, value);
   }
 
   var ROTATIONS = [0, 90, 180, 270];
@@ -70,57 +83,61 @@
     return 0;
   }
 
-  E.showMenu({
-    "": {"title": /*LANG*/"Clock Scroll"},
-    "< Back": back,
-    /*LANG*/'Enabled': {
-      value: settings.enabled !== false,
-      onchange: v => writeSettings("enabled", v)
-    },
-    /*LANG*/'Speed': {
-      value: speedIndex(),
-      min: 0, max: SPEEDS.length - 1, step: 1, wrap: true,
-      format: v => SPEEDS[v].name,
-      onchange: v => writeSettings("speed", SPEEDS[v].value)
-    },
-    /*LANG*/'Repeats': {
-      value: settings.loops,
-      min: 1, max: 10, step: 1,
-      onchange: v => writeSettings("loops", v)
-    },
-    /*LANG*/'Font size': {
-      value: fontSizeIndex(),
-      min: 0, max: FONT_SIZES.length - 1, step: 1, wrap: true,
-      format: v => FONT_SIZES[v].name,
-      onchange: v => writeSettings("fontSize", FONT_SIZES[v].value)
-    },
-    /*LANG*/'Rotate': {
-      value: (settings.rotate >= 0 && settings.rotate <= 3) ? settings.rotate : 0,
-      min: 0, max: ROTATIONS.length - 1, step: 1, wrap: true,
-      format: v => ROTATIONS[v] + "\xB0",
-      onchange: v => writeSettings("rotate", v)
-    },
-    /*LANG*/'Colour': {
-      value: colourIndex(),
-      min: 0, max: COLOURS.length - 1, step: 1, wrap: true,
-      format: v => COLOURS[v].name,
-      onchange: v => writeSettings("fg", COLOURS[v].value)
-    },
-    /*LANG*/'Show date': {
-      value: !!settings.showDate,
-      onchange: v => writeSettings("showDate", v)
-    },
-    /*LANG*/'Max bright': {
-      value: !!settings.maxBright,
-      onchange: v => writeSettings("maxBright", v)
-    },
-    /*LANG*/"Don't dim": {
-      value: !!settings.doNotDim,
-      onchange: v => writeSettings("doNotDim", v)
-    },
-    /*LANG*/"Countdown": {
-      value: !!settings.countdown,
-      onchange: v => writeSettings("countdown", v)
-    }
-  });
+  function showMain() {
+    E.showMenu({
+      "": {"title": /*LANG*/"Clock Scroll"},
+      "< Back": back,
+      /*LANG*/'Enabled': {
+        value: settings.enabled !== false,
+        onchange: v => writeSettings("enabled", v)
+      },
+      /*LANG*/'Speed': {
+        value: speedIndex(),
+        min: 0, max: SPEEDS.length - 1, step: 1, wrap: true,
+        format: v => SPEEDS[v].name,
+        onchange: v => writeSettings("speed", SPEEDS[v].value)
+      },
+      /*LANG*/'Repeats': {
+        value: settings.loops,
+        min: 1, max: 10, step: 1,
+        onchange: v => writeSettings("loops", v)
+      },
+      /*LANG*/'Font size': {
+        value: fontSizeIndex(),
+        min: 0, max: FONT_SIZES.length - 1, step: 1, wrap: true,
+        format: v => FONT_SIZES[v].name,
+        onchange: v => writeSettings("fontSize", FONT_SIZES[v].value)
+      },
+      /*LANG*/'Rotate': {
+        value: (settings.rotate >= 0 && settings.rotate <= 3) ? settings.rotate : 0,
+        min: 0, max: ROTATIONS.length - 1, step: 1, wrap: true,
+        format: v => ROTATIONS[v] + "\xB0",
+        onchange: v => writeSettings("rotate", v)
+      },
+      /*LANG*/'Colour': {
+        value: colourIndex(),
+        min: 0, max: COLOURS.length - 1, step: 1, wrap: true,
+        format: v => COLOURS[v].name,
+        onchange: v => writeSettings("fg", COLOURS[v].value)
+      },
+      /*LANG*/'Show time': {
+        value: settings.showTime !== false,
+        onchange: v => writeContent("showTime", v)
+      },
+      /*LANG*/'Show date': {
+        value: !!settings.showDate,
+        onchange: v => writeContent("showDate", v)
+      },
+      /*LANG*/'Max bright': {
+        value: !!settings.maxBright,
+        onchange: v => writeSettings("maxBright", v)
+      },
+      /*LANG*/"Don't dim": {
+        value: !!settings.doNotDim,
+        onchange: v => writeSettings("doNotDim", v)
+      }
+    });
+  }
+
+  showMain();
 })

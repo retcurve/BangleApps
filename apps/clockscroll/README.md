@@ -31,12 +31,15 @@ on its own.
 | Font size | `Medium` | Small, Medium, or Large |
 | Rotate | `0°` | Screen rotation, in 90 degree steps |
 | Colour | `Theme` | Text colour. `Theme` follows the system theme foreground |
-| Show date | `off` | Scroll the date after the time |
+| Show time | `on` | Scroll the time |
+| Show date | `off` | Scroll the date, after the time if both are on |
 | Max bright | `on` | Force maximum LCD brightness while scrolling |
 | Don't dim | `on` | Keep the backlight on while scrolling |
-| Countdown | `off` | Show a 3-2-1 countdown before the time scrolls |
 
-The time is rebuilt at the start of every repeat, so a long scroll never shows a
+`Show time` and `Show date` can't both be turned off - there'd be nothing left
+to scroll - so the watch buzzes and keeps the old setting if you try.
+
+The text is rebuilt at the start of every repeat, so a long scroll never shows a
 stale minute. 12 or 24 hour format follows the system setting.
 
 ## Author
