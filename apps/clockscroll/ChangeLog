@@ -3,3 +3,4 @@
       tap/button that unlocked the watch, and centre the text on the glyphs
       rather than on the font box
 0.03: Space out the : in the time and the / in the date
+0.04: Revert 0.03 - the spacing was too wide

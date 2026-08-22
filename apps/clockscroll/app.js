@@ -68,10 +68,8 @@ function buildText() {
     h = h % 12;
     if (h === 0) h = 12;
   }
-  // Spaced out separators: they read much better at scrolling speed
-  let t = h + " : " + ("0" + d.getMinutes()).substr(-2) + suffix;
-  if (settings.showDate)
-    t += "  " + require("locale").date(d, 1).replace(/\//g, " / ");
+  let t = h + ":" + ("0" + d.getMinutes()).substr(-2) + suffix;
+  if (settings.showDate) t += " " + require("locale").date(d, 1);
   return t + " ";
 }
 
